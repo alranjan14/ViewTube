@@ -7,7 +7,12 @@ const getInitials = (name = "User") =>
     .join("")
     .toUpperCase();
 
-const UserAvatar = ({ name = "User", className = "" }) => {
+interface UserAvatarProps {
+  name?: string;
+  className?: string;
+}
+
+const UserAvatar = ({ name = "User", className = "" }: UserAvatarProps) => {
   return (
     <div
       className={

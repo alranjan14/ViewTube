@@ -6,6 +6,8 @@
 	"author": "Alok Ranjan",
 	"dependencies": {
 		"@reduxjs/toolkit": "^1.9.2",
+		"@tanstack/react-query": "^5.101.0",
+		"@tanstack/react-query-devtools": "^5.101.0",
 		"@testing-library/react": "^13.4.0",
 		"@testing-library/user-event": "^13.5.0",
 		"react": "^18.2.0",

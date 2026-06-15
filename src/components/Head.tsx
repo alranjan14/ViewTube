@@ -1,57 +1,16 @@
-import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import React, { useState } from "react";
+import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
+import { useSearchSuggestions } from "../shared/hooks/queries";
 import { toggleMenu } from "../utils/appSlice";
-import { getSearchSuggestionsUrl } from "../utils/constants";
-import { cacheResults } from "../utils/searchSlice";
-import { RootState } from "../utils/store";
 import UserAvatar from "./UserAvatar";
 
 const Head = () => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [suggestions, setSuggestions] = useState<string[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
 
-  const searchCache = useSelector((store: RootState) => store.search);
   const dispatch = useDispatch();
-
-  useEffect(() => {
-    const getSearchSuggestions = async (query: string) => {
-      try {
-        const data = await fetch(getSearchSuggestionsUrl(query));
-        const json = await data.json();
-        const nextSuggestions = Array.isArray(json?.[1]) ? json[1] : [];
-
-        setSuggestions(nextSuggestions);
-
-        dispatch(
-          cacheResults({
-            [query]: nextSuggestions,
-          })
-        );
-      } catch {
-        setSuggestions([]);
-      }
-    };
-
-    const query = searchQuery.trim();
-    if (!query) {
-      setSuggestions([]);
-      return;
-    }
-
-    const timer = setTimeout(() => {
-      if (searchCache[query]) {
-        setSuggestions(searchCache[query]);
-      } else {
-        getSearchSuggestions(query);
-      }
-    }, 200);
-
-    return () => {
-      clearTimeout(timer);
-    };
-  }, [dispatch, searchCache, searchQuery]);
+  const { data: suggestions = [] } = useSearchSuggestions(searchQuery);
 
   const toggleMenuHandler = () => {
     dispatch(toggleMenu());
