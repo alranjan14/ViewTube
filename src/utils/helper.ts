@@ -1,4 +1,4 @@
-var nameList = [
+const nameList = [
   "Time",
   "Past",
   "Future",
@@ -192,9 +192,12 @@ export function makeRandomMessage(length: number) {
 }
 
 export const findPrime = (num: number) => {
-  let i, primes = [2, 3], n = 5;
+  let i;
+  const primes = [2, 3];
+  let n = 5;
   const isPrime = (n: number) => {
-    let i = 1, p = primes[i], limit = Math.ceil(Math.sqrt(n));
+    let i = 1, p = primes[i];
+    const limit = Math.ceil(Math.sqrt(n));
     while (p <= limit) {
       if (n % p === 0) {
         return false;

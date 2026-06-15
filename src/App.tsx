@@ -3,8 +3,8 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Body from "./components/Body";
 import MainContainer from "./components/MainContainer";
 import WatchPage from "./components/WatchPage";
-import store from "./utils/store";
 import { ROUTES } from "./shared/routes";
+import store from "./utils/store";
 
 const appRouter = createBrowserRouter([
   {

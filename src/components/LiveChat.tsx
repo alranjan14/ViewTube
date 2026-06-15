@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { addMessage, ChatMessage } from "../utils/chatSlice";
 import { generateRandomName, makeRandomMessage } from "../utils/helper";
-import ChatMessageComponent from "./ChatMessage";
 import { RootState } from "../utils/store";
+import ChatMessageComponent from "./ChatMessage";
 
 const createMessageId = () =>
   `${Date.now()}-${Math.random().toString(36).slice(2)}`;
