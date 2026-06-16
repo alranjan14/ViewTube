@@ -1,9 +1,9 @@
-import { render, screen } from "@testing-library/react";
-import { test, expect } from "vitest";
-import { Provider } from "react-redux";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import store from "./utils/store";
+import { render, screen } from "@testing-library/react";
+import { Provider } from "react-redux";
+import { test, expect } from "vitest";
 import App from "./App";
+import store from "./utils/store";
 
 const queryClient = new QueryClient({
   defaultOptions: {
