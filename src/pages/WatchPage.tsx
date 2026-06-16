@@ -1,18 +1,29 @@
 import React, { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { useSearchParams } from "react-router-dom";
+import CommentsContainer from "../components/CommentsContainer";
+import LiveChat from "../components/LiveChat";
+import { useVideoDetails } from "../shared/hooks/queries";
+import { useLibrary } from "../shared/hooks/useLibrary";
 import { closeMenu } from "../utils/appSlice";
-import CommentsContainer from "./CommentsContainer";
-import LiveChat from "./LiveChat";
 
 const WatchPage = () => {
   const [searchParams] = useSearchParams();
   const videoId = searchParams.get("v");
 
   const dispatch = useDispatch();
+  const { data: videoDetails } = useVideoDetails(videoId || "");
+  const { addToHistory } = useLibrary();
+
   useEffect(() => {
     dispatch(closeMenu());
   }, [dispatch]);
+
+  useEffect(() => {
+    if (videoDetails) {
+      addToHistory(videoDetails);
+    }
+  }, [videoDetails, addToHistory]);
 
   if (!videoId) {
     return <div className="p-6 text-sm text-red-700">Missing video id.</div>;

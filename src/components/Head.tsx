@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useSearchSuggestions } from "../shared/hooks/queries";
+import { ROUTES } from "../shared/routes";
 import { toggleMenu } from "../utils/appSlice";
 import UserAvatar from "./UserAvatar";
 
@@ -10,10 +11,22 @@ const Head = () => {
   const [showSuggestions, setShowSuggestions] = useState(false);
 
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { data: suggestions = [] } = useSearchSuggestions(searchQuery);
 
   const toggleMenuHandler = () => {
     dispatch(toggleMenu());
+  };
+
+  const handleSearch = (query: string) => {
+    if (!query.trim()) return;
+    setShowSuggestions(false);
+    navigate(`${ROUTES.SEARCH}?search_query=${encodeURIComponent(query)}`);
+  };
+
+  const onSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    handleSearch(searchQuery);
   };
 
   return (
@@ -38,7 +51,7 @@ const Head = () => {
       </div>
 
       <div className="relative mx-auto w-full max-w-3xl">
-        <div className="flex">
+        <form className="flex" onSubmit={onSubmit}>
           <input
             className="min-w-0 flex-1 rounded-l-full border border-slate-300 px-5 py-2 outline-none focus:border-blue-500"
             type="text"
@@ -49,12 +62,12 @@ const Head = () => {
             onBlur={() => setShowSuggestions(false)}
           />
           <button
-            type="button"
+            type="submit"
             className="rounded-r-full border border-l-0 border-slate-300 bg-slate-100 px-5 py-2 hover:bg-slate-200"
           >
             Search
           </button>
-        </div>
+        </form>
         {showSuggestions && suggestions.length > 0 && (
           <div className="absolute left-0 right-0 top-12 rounded-lg border border-slate-200 bg-white p-2 shadow-lg">
             <ul role="listbox" aria-label="Search suggestions">
@@ -66,7 +79,7 @@ const Head = () => {
                   className="cursor-pointer rounded px-3 py-2 hover:bg-slate-100"
                   onMouseDown={() => {
                     setSearchQuery(suggestion);
-                    setShowSuggestions(false);
+                    handleSearch(suggestion);
                   }}
                 >
                   {suggestion}
