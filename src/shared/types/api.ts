@@ -1,12 +1,28 @@
+export interface PaginatedResponse<T> {
+  items: T[];
+  nextPageToken?: string;
+}
+
+export interface ChannelDetails {
+  id: string;
+  title: string;
+  description: string;
+  thumbnailUrl: string;
+  subscriberCount?: string;
+  videoCount?: string;
+  viewCount?: string;
+  bannerImageUrl?: string;
+}
+
 export interface VideoSummary {
   id: string;
   title: string;
   channelId: string;
   channelTitle: string;
   thumbnailUrl: string;
-  duration?: string;
   viewCount?: string;
-  publishedAt?: string;
+  publishedAt: string;
+  duration?: string;
 }
 
 export interface VideoDetails extends VideoSummary {

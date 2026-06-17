@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { CommentData, VideoDetails, VideoSummary } from '../types/api';
+import { ChannelDetails, CommentData, PaginatedResponse, VideoDetails, VideoSummary } from '../types/api';
 import { httpClient } from './httpClient';
 import { IVideoProvider } from './videoProvider';
 
@@ -9,7 +9,7 @@ const YOUTUBE_SUGGESTIONS_API_URL = 'https://suggestqueries.google.com/complete/
 const YOUTUBE_API_KEY = import.meta.env.VITE_YOUTUBE_API_KEY || '';
 
 export const youtubeProvider: IVideoProvider = {
-  async getTrendingVideos(regionCode = 'IN', maxResults = 50): Promise<VideoSummary[]> {
+  async getTrendingVideos(regionCode = 'IN', maxResults = 50, pageToken?: string): Promise<PaginatedResponse<VideoSummary>> {
     const params = new URLSearchParams({
       part: 'snippet,contentDetails,statistics',
       chart: 'mostPopular',
@@ -17,19 +17,23 @@ export const youtubeProvider: IVideoProvider = {
       regionCode,
       key: YOUTUBE_API_KEY,
     });
+    if (pageToken) params.append('pageToken', pageToken);
 
     const data = await httpClient<any>(`${YOUTUBE_API_BASE_URL}/videos?${params.toString()}`);
 
-    return (data.items || []).map((item: any) => ({
-      id: item.id,
-      title: item.snippet.title,
-      channelId: item.snippet.channelId,
-      channelTitle: item.snippet.channelTitle,
-      thumbnailUrl: item.snippet.thumbnails?.medium?.url || '',
-      viewCount: item.statistics?.viewCount,
-      publishedAt: item.snippet.publishedAt,
-      duration: item.contentDetails?.duration,
-    }));
+    return {
+      items: (data.items || []).map((item: any) => ({
+        id: item.id,
+        title: item.snippet.title,
+        channelId: item.snippet.channelId,
+        channelTitle: item.snippet.channelTitle,
+        thumbnailUrl: item.snippet.thumbnails?.medium?.url || '',
+        viewCount: item.statistics?.viewCount,
+        publishedAt: item.snippet.publishedAt,
+        duration: item.contentDetails?.duration,
+      })),
+      nextPageToken: data.nextPageToken,
+    };
   },
 
   async getSearchSuggestions(query: string): Promise<string[]> {
@@ -46,7 +50,7 @@ export const youtubeProvider: IVideoProvider = {
     return Array.isArray(data?.[1]) ? data[1] : [];
   },
 
-  async getSearchVideos(query: string, maxResults = 25): Promise<VideoSummary[]> {
+  async getSearchVideos(query: string, maxResults = 25, pageToken?: string): Promise<PaginatedResponse<VideoSummary>> {
     const params = new URLSearchParams({
       part: 'snippet',
       q: query,
@@ -54,17 +58,21 @@ export const youtubeProvider: IVideoProvider = {
       type: 'video',
       key: YOUTUBE_API_KEY,
     });
+    if (pageToken) params.append('pageToken', pageToken);
 
     const data = await httpClient<any>(`${YOUTUBE_API_BASE_URL}/search?${params.toString()}`);
 
-    return (data.items || []).map((item: any) => ({
-      id: item.id.videoId,
-      title: item.snippet.title,
-      channelId: item.snippet.channelId,
-      channelTitle: item.snippet.channelTitle,
-      thumbnailUrl: item.snippet.thumbnails?.medium?.url || '',
-      publishedAt: item.snippet.publishedAt,
-    }));
+    return {
+      items: (data.items || []).map((item: any) => ({
+        id: item.id.videoId,
+        title: item.snippet.title,
+        channelId: item.snippet.channelId,
+        channelTitle: item.snippet.channelTitle,
+        thumbnailUrl: item.snippet.thumbnails?.medium?.url || '',
+        publishedAt: item.snippet.publishedAt,
+      })),
+      nextPageToken: data.nextPageToken,
+    };
   },
 
   async getVideoDetails(videoId: string): Promise<VideoDetails> {
@@ -100,33 +108,60 @@ export const youtubeProvider: IVideoProvider = {
     };
   },
 
-  async getVideoComments(videoId: string, maxResults = 20): Promise<CommentData[]> {
+  async getChannelDetails(channelId: string): Promise<ChannelDetails> {
+    const params = new URLSearchParams({
+      part: 'snippet,statistics,brandingSettings',
+      id: channelId,
+      key: YOUTUBE_API_KEY,
+    });
+
+    const data = await httpClient<any>(`${YOUTUBE_API_BASE_URL}/channels?${params.toString()}`);
+    if (!data.items?.length) throw new Error('Channel not found');
+
+    const item = data.items[0];
+    return {
+      id: item.id,
+      title: item.snippet.title,
+      description: item.snippet.description,
+      thumbnailUrl: item.snippet.thumbnails?.medium?.url || '',
+      subscriberCount: item.statistics?.subscriberCount,
+      videoCount: item.statistics?.videoCount,
+      viewCount: item.statistics?.viewCount,
+      bannerImageUrl: item.brandingSettings?.image?.bannerExternalUrl,
+    };
+  },
+
+  async getVideoComments(videoId: string, maxResults = 20, pageToken?: string): Promise<PaginatedResponse<CommentData>> {
     const params = new URLSearchParams({
       part: 'snippet,replies',
       videoId,
       maxResults: String(maxResults),
       key: YOUTUBE_API_KEY,
     });
+    if (pageToken) params.append('pageToken', pageToken);
 
     const data = await httpClient<any>(`${YOUTUBE_API_BASE_URL}/commentThreads?${params.toString()}`);
 
-    return (data.items || []).map((item: any) => {
-      const topLevel = item.snippet.topLevelComment.snippet;
-      return {
-        id: item.id,
-        name: topLevel.authorDisplayName,
-        text: topLevel.textOriginal,
-        publishedAt: topLevel.publishedAt,
-        authorProfileImageUrl: topLevel.authorProfileImageUrl,
-        replies: (item.replies?.comments || []).map((reply: any) => ({
-          id: reply.id,
-          name: reply.snippet.authorDisplayName,
-          text: reply.snippet.textOriginal,
-          publishedAt: reply.snippet.publishedAt,
-          authorProfileImageUrl: reply.snippet.authorProfileImageUrl,
-          replies: [],
-        })),
-      };
-    });
+    return {
+      items: (data.items || []).map((item: any) => {
+        const topLevel = item.snippet.topLevelComment.snippet;
+        return {
+          id: item.id,
+          name: topLevel.authorDisplayName,
+          text: topLevel.textOriginal,
+          publishedAt: topLevel.publishedAt,
+          authorProfileImageUrl: topLevel.authorProfileImageUrl,
+          replies: (item.replies?.comments || []).map((reply: any) => ({
+            id: reply.id,
+            name: reply.snippet.authorDisplayName,
+            text: reply.snippet.textOriginal,
+            publishedAt: reply.snippet.publishedAt,
+            authorProfileImageUrl: reply.snippet.authorProfileImageUrl,
+            replies: [],
+          })),
+        };
+      }),
+      nextPageToken: data.nextPageToken,
+    };
   },
 };

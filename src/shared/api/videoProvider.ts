@@ -1,9 +1,10 @@
-import { CommentData, VideoDetails, VideoSummary } from '../types/api';
+import { ChannelDetails, CommentData, PaginatedResponse, VideoDetails, VideoSummary } from '../types/api';
 
 export interface IVideoProvider {
-  getTrendingVideos(regionCode?: string, maxResults?: number): Promise<VideoSummary[]>;
+  getTrendingVideos(regionCode?: string, maxResults?: number, pageToken?: string): Promise<PaginatedResponse<VideoSummary>>;
   getSearchSuggestions(query: string): Promise<string[]>;
-  getSearchVideos(query: string, maxResults?: number): Promise<VideoSummary[]>;
+  getSearchVideos(query: string, maxResults?: number, pageToken?: string): Promise<PaginatedResponse<VideoSummary>>;
   getVideoDetails(videoId: string): Promise<VideoDetails>;
-  getVideoComments(videoId: string, maxResults?: number): Promise<CommentData[]>;
+  getChannelDetails(channelId: string): Promise<ChannelDetails>;
+  getVideoComments(videoId: string, maxResults?: number, pageToken?: string): Promise<PaginatedResponse<CommentData>>;
 }

@@ -19,6 +19,12 @@ const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
 
+if (import.meta.env.DEV) {
+  import('@axe-core/react').then((axe) => {
+    axe.default(React, ReactDOM, 1000);
+  });
+}
+
 root.render(
   <React.StrictMode>
     <Provider store={store}>
