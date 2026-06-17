@@ -1,4 +1,4 @@
-import { ThumbsUp, ThumbsDown, Share2, Plus, CircleUser, Check } from "lucide-react";
+import { ThumbsUp, ThumbsDown, Share2, Plus, CircleUser, Check, Clock } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link, useSearchParams } from "react-router-dom";
@@ -7,6 +7,7 @@ import LiveChat from "../components/LiveChat";
 import RelatedVideos from "../components/RelatedVideos";
 import { useVideoDetails, useChannelDetails } from "../shared/hooks/queries";
 import { useLibrary } from "../shared/hooks/useLibrary";
+import { usePlaylists } from "../shared/hooks/usePlaylists";
 import { useWatchLater } from "../shared/hooks/useWatchLater";
 import Button from "../shared/ui/Button";
 import Skeleton from "../shared/ui/Skeleton";
@@ -22,6 +23,31 @@ const WatchPage = () => {
   const { data: channelDetails } = useChannelDetails(videoDetails?.channelId || "");
   const { addToHistory } = useLibrary();
   const { isSaved, toggleSave } = useWatchLater();
+  const { playlists, createPlaylist, addVideoToPlaylist } = usePlaylists();
+
+  const handleAddToPlaylist = () => {
+    if (!videoDetails) return;
+    const name = window.prompt("Enter new playlist name or type 'Favorites':", "Favorites");
+    if (!name) return;
+    
+    let playlist = playlists.find(p => p.title.toLowerCase() === name.toLowerCase());
+    if (!playlist) {
+      playlist = createPlaylist(name);
+    }
+    
+    // Convert to VideoSummary
+    addVideoToPlaylist(playlist.id, {
+      id: videoDetails.id,
+      title: videoDetails.title,
+      channelId: videoDetails.channelId,
+      channelTitle: videoDetails.channelTitle,
+      thumbnailUrl: videoDetails.thumbnailUrl,
+      viewCount: videoDetails.viewCount,
+      publishedAt: videoDetails.publishedAt,
+      duration: videoDetails.duration,
+    });
+    alert(`Added to playlist: ${playlist.title}`);
+  };
 
   useEffect(() => {
     dispatch(closeMenu());
@@ -118,8 +144,16 @@ const WatchPage = () => {
                   onClick={() => toggleSave(videoDetails)}
                   className={`flex items-center gap-2 px-4 py-2 hover:bg-slate-200 transition-colors rounded-full font-medium text-sm ${isSaved(videoDetails.id) ? 'bg-slate-200 text-slate-900' : 'bg-slate-100'}`}
                 >
-                  {isSaved(videoDetails.id) ? <Check size={18} /> : <Plus size={18} />}
-                  {isSaved(videoDetails.id) ? "Saved" : "Save"}
+                  {isSaved(videoDetails.id) ? <Check size={18} /> : <Clock size={18} />}
+                  {isSaved(videoDetails.id) ? "Saved" : "Watch Later"}
+                </button>
+
+                <button 
+                  onClick={handleAddToPlaylist}
+                  className="flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 transition-colors rounded-full font-medium text-sm"
+                >
+                  <Plus size={18} />
+                  Save
                 </button>
               </div>
             </div>
