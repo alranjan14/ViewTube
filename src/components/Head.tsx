@@ -69,11 +69,11 @@ const Head = () => {
           <Menu className="text-slate-700" />
         </IconButton>
         
-        <Link to="/" className="flex items-center gap-2 group outline-none focus-visible:ring-2 focus-visible:ring-red-500 rounded-lg p-1" aria-label="VideoTube Home">
+        <Link to="/" className="flex items-center gap-2 group outline-none focus-visible:ring-2 focus-visible:ring-red-500 rounded-lg p-1" aria-label="ViewTube Home">
           <div className="bg-red-600 text-white p-1 rounded-lg group-hover:scale-105 transition-transform shadow-md shadow-red-600/20">
             <Video size={20} className="fill-white" />
           </div>
-          <span className="text-xl font-bold tracking-tight text-slate-900 hidden sm:block">VideoTube</span>
+          <span className="text-xl font-bold tracking-tight text-slate-900 hidden sm:block">ViewTube</span>
         </Link>
       </div>
 

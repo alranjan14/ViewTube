@@ -41,14 +41,42 @@ export const youtubeProvider: IVideoProvider = {
     if (!query.trim()) return [];
 
     const params = new URLSearchParams({
-      client: 'firefox',
+      client: 'youtube',
       ds: 'yt',
       q: query.trim(),
     });
 
-    // The suggest API returns an array like: [ "query", ["suggestion1", "suggestion2"] ]
-    const data = await httpClient<any>(`${YOUTUBE_SUGGESTIONS_API_URL}?${params.toString()}`, { signal });
-    return Array.isArray(data?.[1]) ? data[1] : [];
+    return new Promise((resolve, reject) => {
+      const callbackName = 'jsonp_callback_' + Math.round(100000 * Math.random());
+      params.append('jsonp', callbackName);
+      
+      const script = document.createElement('script');
+      script.src = `${YOUTUBE_SUGGESTIONS_API_URL}?${params.toString()}`;
+      
+      if (signal) {
+        signal.addEventListener('abort', () => {
+          cleanup();
+          reject(new Error('Aborted'));
+        });
+      }
+
+      const cleanup = () => {
+        delete (window as any)[callbackName];
+        if (script.parentNode) script.parentNode.removeChild(script);
+      };
+
+      (window as any)[callbackName] = (data: any) => {
+        cleanup();
+        resolve(Array.isArray(data?.[1]) ? data[1].map((item: any) => item[0]) : []);
+      };
+
+      script.onerror = () => {
+        cleanup();
+        resolve([]); // Fail gracefully to avoid crashing suggestions
+      };
+
+      document.body.appendChild(script);
+    });
   },
 
   async getSearchVideos(query: string, maxResults = 25, pageToken?: string, filters?: SearchFilters, signal?: AbortSignal): Promise<PaginatedResponse<VideoSummary>> {

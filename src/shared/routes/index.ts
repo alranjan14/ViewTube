@@ -2,6 +2,7 @@ export const ROUTES = {
   HOME: "/",
   WATCH: "/watch",
   SEARCH: "/results",
+  EXPLORE: "/explore",
   CHANNEL: "/channel/:channelId",
   PLAYLIST: "/playlist/:playlistId",
   LIBRARY: "/library",

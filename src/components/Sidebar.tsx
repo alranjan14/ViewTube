@@ -1,4 +1,4 @@
-import { Home, Compass, PlaySquare, Clock, History, ThumbsUp, Flame, Music, Gamepad2, Trophy } from "lucide-react";
+import { Home, Compass, PlaySquare, Clock, History, ThumbsUp, Flame, Music, Gamepad2, Trophy, ListVideo } from "lucide-react";
 import React from "react";
 import { useSelector } from "react-redux";
 import { Link, useLocation } from "react-router-dom";
@@ -7,7 +7,9 @@ import { RootState } from "../utils/store";
 
 const SidebarItem = ({ icon: Icon, label, to, isMenuOpen }: { icon: React.ElementType; label: string; to: string; isMenuOpen: boolean }) => {
   const location = useLocation();
-  const isActive = location.pathname === to;
+  const currentPath = location.pathname + location.search;
+  const toPath = to.split('?')[0];
+  const isActive = currentPath === to || (to === ROUTES.HOME && location.pathname === ROUTES.HOME);
 
   return (
     <Link
@@ -39,17 +41,17 @@ const Sidebar = () => {
           <div className="py-3 flex flex-col gap-1">
             <h3 className="px-4 text-base font-semibold mb-1 text-slate-900">You</h3>
             <SidebarItem icon={History} label="History" to={ROUTES.LIBRARY} isMenuOpen={isMenuOpen} />
-            <SidebarItem icon={Clock} label="Watch Later" to="/watch-later" isMenuOpen={isMenuOpen} />
-            <SidebarItem icon={ThumbsUp} label="Liked videos" to="/liked" isMenuOpen={isMenuOpen} />
+            <SidebarItem icon={Clock} label="Watch Later" to={ROUTES.LIBRARY} isMenuOpen={isMenuOpen} />
+            <SidebarItem icon={ListVideo} label="Playlists" to={ROUTES.LIBRARY} isMenuOpen={isMenuOpen} />
           </div>
           
           <div className="h-px bg-slate-200 my-2 mx-2"></div>
           <div className="py-3 flex flex-col gap-1">
             <h3 className="px-4 text-base font-semibold mb-1 text-slate-900">Explore</h3>
-            <SidebarItem icon={Flame} label="Trending" to="/trending" isMenuOpen={isMenuOpen} />
-            <SidebarItem icon={Music} label="Music" to="/music" isMenuOpen={isMenuOpen} />
-            <SidebarItem icon={Gamepad2} label="Gaming" to="/gaming" isMenuOpen={isMenuOpen} />
-            <SidebarItem icon={Trophy} label="Sports" to="/sports" isMenuOpen={isMenuOpen} />
+            <SidebarItem icon={Flame} label="Trending" to="/explore" isMenuOpen={isMenuOpen} />
+            <SidebarItem icon={Music} label="Music" to="/explore?category=10" isMenuOpen={isMenuOpen} />
+            <SidebarItem icon={Gamepad2} label="Gaming" to="/explore?category=20" isMenuOpen={isMenuOpen} />
+            <SidebarItem icon={Trophy} label="Sports" to="/explore?category=17" isMenuOpen={isMenuOpen} />
           </div>
           
           <div className="h-px bg-slate-200 my-2 mx-2"></div>
@@ -62,7 +64,7 @@ const Sidebar = () => {
               Data provided by YouTube API. Not affiliated with YouTube or Google LLC.
             </p>
             <p className="text-[10px] text-slate-400 mt-2 font-medium">
-              © {new Date().getFullYear()} VideoTube
+              © {new Date().getFullYear()} ViewTube
             </p>
           </div>
         </>

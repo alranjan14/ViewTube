@@ -7,12 +7,15 @@ import store from "./utils/store";
 
 const ChannelPage = lazy(() => import("./pages/ChannelPage"));
 const HomePage = lazy(() => import("./pages/HomePage"));
+const ExplorePage = lazy(() => import("./pages/ExplorePage"));
 const LibraryPage = lazy(() => import("./pages/LibraryPage"));
 const NotFoundPage = lazy(() => import("./pages/NotFoundPage"));
 const PlaylistPage = lazy(() => import("./pages/PlaylistPage"));
 const SearchResultsPage = lazy(() => import("./pages/SearchResultsPage"));
 const SettingsPage = lazy(() => import("./pages/SettingsPage"));
 const WatchPage = lazy(() => import("./pages/WatchPage"));
+const PlaceholderPage = lazy(() => import("./pages/PlaceholderPage"));
+import { PlaySquare } from "lucide-react";
 
 const appRouter = createBrowserRouter([
   {
@@ -23,6 +26,14 @@ const appRouter = createBrowserRouter([
       {
         index: true,
         element: <HomePage />,
+      },
+      {
+        path: ROUTES.EXPLORE,
+        element: <ExplorePage />,
+      },
+      {
+        path: "/subscriptions",
+        element: <PlaceholderPage title="Subscriptions" description="Sign in to see updates from your favorite ViewTube channels." icon={PlaySquare} />,
       },
       {
         path: ROUTES.WATCH,

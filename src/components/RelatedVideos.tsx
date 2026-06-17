@@ -41,10 +41,7 @@ const RelatedVideos = ({ categoryId }: { categoryId?: string }) => {
       <h3 className="font-semibold text-slate-900 mb-3 px-2">Up Next</h3>
       <div className="flex flex-col gap-2">
         {videos.map((video) => (
-          <Link key={video.id} to={generatePath(ROUTES.WATCH, {})} onClick={(e) => {
-            e.preventDefault();
-            window.location.href = `/watch?v=${video.id}`;
-          }}>
+          <Link key={video.id} to={`/watch?v=${video.id}`}>
             <div className="flex gap-3 group p-2 hover:bg-slate-50/80 rounded-xl cursor-pointer transition-colors">
               <div className="relative w-[160px] flex-shrink-0 aspect-video rounded-xl overflow-hidden bg-slate-100">
                 <img 

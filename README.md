@@ -1,4 +1,4 @@
-# VideoTube
+# ViewTube
 
 A premium, React-based video discovery application inspired by YouTube, featuring a modern glassmorphism aesthetic and robust testing architecture.
 
@@ -47,13 +47,13 @@ A premium, React-based video discovery application inspired by YouTube, featurin
 - `npm run test`: Run the Vitest unit and integration test suite.
 - `npm run test:e2e`: Run the Playwright End-to-End test suite against the local development server.
 
-## Documentation
+## Features
 
-For a deeper dive into the technical decisions, codebase, and API strategy, please refer to the following documents:
-
-- **[Architecture](ARCHITECTURE.md)**: Details on the SPA approach, state management, and directory structure.
-- **[API Strategy](API_STRATEGY.md)**: Information about the `youtubeProvider`, `mockProvider`, quota management, and MSW setup.
-- **[Design System](DESIGN_SYSTEM.md)**: Aesthetic guidelines covering Tailwind usage, glassmorphism, and shared UI primitives.
+- **Glassmorphism UI:** A premium, modern interface with translucent backgrounds, smooth micro-animations, and vibrant accents.
+- **Fast SPA Navigation:** Instant client-side routing using React Router, avoiding full page reloads.
+- **Data Fetching & Caching:** Robust server-state management using TanStack Query to optimize YouTube Data API usage and caching.
+- **Mock API Mode:** A built-in mock provider that simulates YouTube API responses for development and testing without burning API quota.
+- **Comprehensive Testing:** E2E tests powered by Playwright and unit tests with Vitest + RTL.
 
 ## Notes
 

@@ -1,8 +1,8 @@
 {
-	"name": "youtube-clone",
+	"name": "viewtube",
 	"version": "1.0.0",
 	"private": true,
-	"description": "Youtube Clone App",
+	"description": "ViewTube App",
 	"author": "Alok Ranjan",
 	"dependencies": {
 		"@reduxjs/toolkit": "^1.9.2",

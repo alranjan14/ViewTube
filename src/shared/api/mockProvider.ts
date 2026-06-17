@@ -5,9 +5,9 @@ import { IVideoProvider } from './videoProvider';
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const mockVideoSummary: VideoSummary = {
-  id: 'mock-video-1',
-  title: 'Mock Video: Building a YouTube Clone with React and Vite',
-  channelId: 'mock-channel-1',
+  id: 'mock-1',
+  title: 'Mock Video: Building a ViewTube App with React and Vite',
+  channelId: 'channel-1',
   channelTitle: 'Frontend Master',
   thumbnailUrl: 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=800&q=80',
   viewCount: '1500000',
