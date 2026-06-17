@@ -63,11 +63,17 @@ const appRouter = createBrowserRouter([
   },
 ]);
 
+import { GoogleOAuthProvider } from "@react-oauth/google";
+
 function App() {
+  const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
+
   return (
-    <Provider store={store}>
-      <RouterProvider router={appRouter} />
-    </Provider>
+    <GoogleOAuthProvider clientId={googleClientId}>
+      <Provider store={store}>
+        <RouterProvider router={appRouter} />
+      </Provider>
+    </GoogleOAuthProvider>
   );
 }
 

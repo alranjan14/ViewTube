@@ -5,9 +5,11 @@
 	"description": "ViewTube App",
 	"author": "Alok Ranjan",
 	"dependencies": {
+		"@react-oauth/google": "^0.13.5",
 		"@reduxjs/toolkit": "^1.9.2",
 		"@tanstack/react-query": "^5.101.0",
 		"@tanstack/react-query-devtools": "^5.101.0",
+		"jwt-decode": "^4.0.0",
 		"lucide-react": "^1.18.0",
 		"react": "^18.2.0",
 		"react-dom": "^18.2.0",

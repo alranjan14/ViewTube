@@ -1,7 +1,10 @@
-import { Menu, Search, Mic, Bell, Video, CircleUser } from "lucide-react";
+import { Menu, Search, Mic, Bell, Video, CircleUser, LogOut } from "lucide-react";
 import React, { useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
+import { useGoogleLogin } from "@react-oauth/google";
+import { login, logout } from "../utils/authSlice";
+import { RootState } from "../utils/store";
 import { useSearchSuggestions } from "../shared/hooks/queries";
 import { useDebounce } from "../shared/hooks/useDebounce";
 import { useSearchHistory } from "../shared/hooks/useSearchHistory";
@@ -14,9 +17,34 @@ const Head = () => {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const [isListening, setIsListening] = useState(false);
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  
+  const { user, isAuthenticated } = useSelector((state: RootState) => state.auth);
+
+  const handleGoogleLogin = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      try {
+        const res = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
+          headers: { Authorization: `Bearer ${tokenResponse.access_token}` },
+        });
+        const userInfo = await res.json();
+        dispatch(
+          login({
+            name: userInfo.name,
+            email: userInfo.email,
+            picture: userInfo.picture,
+          })
+        );
+      } catch (error) {
+        console.error("Failed to fetch user info", error);
+        alert("Login failed. Please check your console.");
+      }
+    },
+    onError: (error) => console.error("Login Failed", error),
+  });
   
   const debouncedSearchQuery = useDebounce(searchQuery, 300);
   const { data: suggestions = [] } = useSearchSuggestions(debouncedSearchQuery);
@@ -202,14 +230,57 @@ const Head = () => {
       </div>
 
       {/* Right section: Profile & Actions */}
-      <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
-        <IconButton className="hidden sm:inline-flex" aria-label="Notifications">
-          <Bell size={20} className="text-slate-700" />
-        </IconButton>
-        <button className="flex items-center gap-2 p-1 pl-2 pr-4 bg-slate-100 hover:bg-slate-200 rounded-full transition-colors group">
-          <CircleUser size={24} className="text-slate-600 group-hover:text-slate-900 transition-colors" />
-          <span className="text-sm font-semibold text-slate-700 hidden md:block">Alok</span>
-        </button>
+      <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0 relative">
+        {isAuthenticated && (
+          <IconButton className="hidden sm:inline-flex" aria-label="Notifications">
+            <Bell size={20} className="text-slate-700" />
+          </IconButton>
+        )}
+        
+        {isAuthenticated && user ? (
+          <div className="relative">
+            <button 
+              onClick={() => setShowProfileMenu(!showProfileMenu)}
+              onBlur={() => setTimeout(() => setShowProfileMenu(false), 200)}
+              className="flex items-center gap-2 p-1 pl-2 pr-3 bg-slate-100 hover:bg-slate-200 rounded-full transition-colors group border border-slate-200/50"
+            >
+              <img src={user.picture} alt={user.name} className="w-7 h-7 rounded-full object-cover shadow-sm" />
+              <span className="text-sm font-semibold text-slate-700 hidden md:block max-w-[100px] truncate">{user.name.split(' ')[0]}</span>
+            </button>
+
+            {/* Profile Dropdown */}
+            {showProfileMenu && (
+              <div className="absolute top-[calc(100%+8px)] right-0 w-64 bg-white rounded-2xl shadow-xl border border-slate-100 py-2 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200 z-50">
+                <div className="flex items-start gap-3 px-4 py-3 border-b border-slate-100">
+                  <img src={user.picture} alt={user.name} className="w-10 h-10 rounded-full object-cover" />
+                  <div className="flex flex-col overflow-hidden">
+                    <span className="text-sm font-bold text-slate-900 truncate">{user.name}</span>
+                    <span className="text-xs text-slate-500 truncate">{user.email}</span>
+                  </div>
+                </div>
+                <ul className="py-2">
+                  <li>
+                    <button 
+                      onMouseDown={() => dispatch(logout())}
+                      className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors text-left"
+                    >
+                      <LogOut size={18} className="text-slate-400" />
+                      Sign out
+                    </button>
+                  </li>
+                </ul>
+              </div>
+            )}
+          </div>
+        ) : (
+          <button 
+            onClick={() => handleGoogleLogin()}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-full transition-colors font-medium shadow-sm shadow-blue-600/20"
+          >
+            <CircleUser size={18} />
+            <span className="text-sm hidden sm:block">Sign in</span>
+          </button>
+        )}
       </div>
     </header>
     </>
