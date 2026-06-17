@@ -51,6 +51,20 @@ const Sidebar = () => {
             <SidebarItem icon={Gamepad2} label="Gaming" to="/gaming" isMenuOpen={isMenuOpen} />
             <SidebarItem icon={Trophy} label="Sports" to="/sports" isMenuOpen={isMenuOpen} />
           </div>
+          
+          <div className="h-px bg-slate-200 my-2 mx-2"></div>
+          <div className="px-4 py-4 mt-auto">
+            <div className="flex flex-wrap gap-x-2 gap-y-1 text-xs font-semibold text-slate-500">
+              <a href="https://www.youtube.com/t/terms" target="_blank" rel="noopener noreferrer" className="hover:text-slate-800 transition-colors">Terms of Service</a>
+              <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer" className="hover:text-slate-800 transition-colors">Privacy Policy</a>
+            </div>
+            <p className="text-[10px] text-slate-400 mt-4 leading-relaxed">
+              Data provided by YouTube API. Not affiliated with YouTube or Google LLC.
+            </p>
+            <p className="text-[10px] text-slate-400 mt-2 font-medium">
+              © {new Date().getFullYear()} VideoTube
+            </p>
+          </div>
         </>
       )}
     </aside>
