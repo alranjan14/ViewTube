@@ -48,6 +48,17 @@ export const mockProvider: IVideoProvider = {
     return { items, nextPageToken: 'mock-search-next-token' };
   },
 
+  async getChannelVideos(channelId: string, maxResults = 25, _pageToken?: string, _signal?: AbortSignal): Promise<PaginatedResponse<VideoSummary>> {
+    await delay(500);
+    const items = Array(maxResults).fill(null).map((_, i) => ({
+      ...mockVideoSummary,
+      id: `channel-video-${channelId}-${i}-${Date.now()}`,
+      title: `Upload #${i + 1} from ${channelId}`,
+      channelId: channelId,
+    }));
+    return { items, nextPageToken: 'mock-channel-next-token' };
+  },
+
   async getVideoDetails(videoId: string, _signal?: AbortSignal): Promise<VideoDetails> {
     await delay(300);
     return {

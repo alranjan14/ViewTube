@@ -1,7 +1,7 @@
 import { ThumbsUp, ThumbsDown, Share2, Plus, CircleUser } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import CommentsContainer from "../components/CommentsContainer";
 import LiveChat from "../components/LiveChat";
 import { useVideoDetails } from "../shared/hooks/queries";
@@ -75,13 +75,13 @@ const WatchPage = () => {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               {/* Channel Info */}
               <div className="flex items-center gap-4">
-                <div className="flex items-center gap-3 cursor-pointer group">
+                <Link to={`/channel/${videoDetails.channelId}`} className="flex items-center gap-3 cursor-pointer group outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded">
                   <CircleUser size={40} strokeWidth={1} className="text-slate-400 group-hover:text-slate-600 transition-colors" />
                   <div className="flex flex-col">
                     <span className="font-bold text-slate-900 group-hover:text-blue-600 transition-colors">{videoDetails.channelTitle}</span>
                     <span className="text-xs text-slate-500">1.2M subscribers</span>
                   </div>
-                </div>
+                </Link>
                 <Button variant="primary" className="ml-2">Subscribe</Button>
               </div>
 
