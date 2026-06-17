@@ -195,7 +195,7 @@ const WatchPage = () => {
         {videoDetails?.liveStreaming?.isLive && <LiveChat />}
         {/* Related videos rail */}
         {!videoDetails?.liveStreaming?.isLive && (
-          <RelatedVideos categoryId={videoDetails?.categoryId} />
+          <RelatedVideos title={videoDetails?.title} />
         )}
       </div>
     </div>

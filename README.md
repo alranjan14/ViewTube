@@ -2,6 +2,9 @@
 
 A premium, React-based video discovery application inspired by YouTube. It features a modern glassmorphism aesthetic, robust testing architecture, real Google authentication, and native voice search capabilities.
 
+## Demo
+
+![ViewTube Demo](./public/demo.webp)
 ## Tech Stack
 
 - **Framework:** React 18 & Vite
