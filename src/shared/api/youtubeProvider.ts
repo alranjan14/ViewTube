@@ -9,7 +9,7 @@ const YOUTUBE_SUGGESTIONS_API_URL = 'https://suggestqueries.google.com/complete/
 const YOUTUBE_API_KEY = import.meta.env.VITE_YOUTUBE_API_KEY || '';
 
 export const youtubeProvider: IVideoProvider = {
-  async getTrendingVideos(regionCode = 'IN', maxResults = 50, pageToken?: string, signal?: AbortSignal): Promise<PaginatedResponse<VideoSummary>> {
+  async getTrendingVideos(regionCode = 'IN', maxResults = 50, pageToken?: string, videoCategoryId?: string, signal?: AbortSignal): Promise<PaginatedResponse<VideoSummary>> {
     const params = new URLSearchParams({
       part: 'snippet,contentDetails,statistics',
       chart: 'mostPopular',
@@ -18,6 +18,7 @@ export const youtubeProvider: IVideoProvider = {
       key: YOUTUBE_API_KEY,
     });
     if (pageToken) params.append('pageToken', pageToken);
+    if (videoCategoryId) params.append('videoCategoryId', videoCategoryId);
 
     const data = await httpClient<any>(`${YOUTUBE_API_BASE_URL}/videos?${params.toString()}`, { signal });
 

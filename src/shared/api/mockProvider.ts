@@ -16,12 +16,12 @@ const mockVideoSummary: VideoSummary = {
 };
 
 export const mockProvider: IVideoProvider = {
-  async getTrendingVideos(_regionCode = 'IN', maxResults = 50, _pageToken?: string, _signal?: AbortSignal): Promise<PaginatedResponse<VideoSummary>> {
+  async getTrendingVideos(_regionCode = 'IN', maxResults = 50, _pageToken?: string, videoCategoryId?: string, _signal?: AbortSignal): Promise<PaginatedResponse<VideoSummary>> {
     await delay(500);
     const items = Array(maxResults).fill(null).map((_, i) => ({
       ...mockVideoSummary,
-      id: `trending-video-${i}-${Date.now()}`,
-      title: `Trending Video #${i + 1}`,
+      id: `trending-video-${videoCategoryId || 'all'}-${i}-${Date.now()}`,
+      title: `Trending Video #${i + 1} ${videoCategoryId ? `(Cat ${videoCategoryId})` : ''}`,
     }));
     return { items, nextPageToken: 'mock-next-page-token' };
   },
