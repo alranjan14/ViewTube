@@ -20,6 +20,13 @@ export interface VideoSummary {
   channelId: string;
   channelTitle: string;
   thumbnailUrl: string;
+  thumbnails?: {
+    default?: string;
+    medium?: string;
+    high?: string;
+    standard?: string;
+    maxres?: string;
+  };
   viewCount?: string;
   publishedAt: string;
   duration?: string;

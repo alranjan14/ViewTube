@@ -5,7 +5,7 @@ import { ChannelDetails, CommentData, PaginatedResponse, VideoDetails, VideoSumm
 export const useTrendingVideos = (regionCode = 'IN', maxResults = 50) => {
   return useInfiniteQuery<PaginatedResponse<VideoSummary>, Error>({
     queryKey: ['trendingVideos', regionCode, maxResults],
-    queryFn: ({ pageParam }) => apiProvider.getTrendingVideos(regionCode, maxResults, pageParam as string | undefined),
+    queryFn: ({ pageParam, signal }) => apiProvider.getTrendingVideos(regionCode, maxResults, pageParam as string | undefined, signal),
     getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
     initialPageParam: undefined,
     staleTime: 1000 * 60 * 5, // 5 minutes
@@ -16,7 +16,7 @@ export const useTrendingVideos = (regionCode = 'IN', maxResults = 50) => {
 export const useSearchSuggestions = (query: string) => {
   return useQuery<string[], Error>({
     queryKey: ['searchSuggestions', query],
-    queryFn: () => apiProvider.getSearchSuggestions(query),
+    queryFn: ({ signal }) => apiProvider.getSearchSuggestions(query, signal),
     enabled: !!query.trim(), // only run if query is not empty
     staleTime: 1000 * 60 * 30, // 30 minutes for search suggestions
   });
@@ -25,7 +25,7 @@ export const useSearchSuggestions = (query: string) => {
 export const useSearchVideos = (query: string, maxResults = 25) => {
   return useInfiniteQuery<PaginatedResponse<VideoSummary>, Error>({
     queryKey: ['searchVideos', query, maxResults],
-    queryFn: ({ pageParam }) => apiProvider.getSearchVideos(query, maxResults, pageParam as string | undefined),
+    queryFn: ({ pageParam, signal }) => apiProvider.getSearchVideos(query, maxResults, pageParam as string | undefined, signal),
     getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
     initialPageParam: undefined,
     enabled: !!query.trim(),
@@ -36,7 +36,7 @@ export const useSearchVideos = (query: string, maxResults = 25) => {
 export const useVideoDetails = (videoId: string) => {
   return useQuery<VideoDetails, Error>({
     queryKey: ['videoDetails', videoId],
-    queryFn: () => apiProvider.getVideoDetails(videoId),
+    queryFn: ({ signal }) => apiProvider.getVideoDetails(videoId, signal),
     enabled: !!videoId,
     staleTime: 1000 * 60 * 5,
   });
@@ -45,7 +45,7 @@ export const useVideoDetails = (videoId: string) => {
 export const useChannelDetails = (channelId: string) => {
   return useQuery<ChannelDetails, Error>({
     queryKey: ['channelDetails', channelId],
-    queryFn: () => apiProvider.getChannelDetails(channelId),
+    queryFn: ({ signal }) => apiProvider.getChannelDetails(channelId, signal),
     enabled: !!channelId,
     staleTime: 1000 * 60 * 30, // 30 minutes for channel details
   });
@@ -54,7 +54,7 @@ export const useChannelDetails = (channelId: string) => {
 export const useVideoComments = (videoId: string, maxResults = 20) => {
   return useInfiniteQuery<PaginatedResponse<CommentData>, Error>({
     queryKey: ['videoComments', videoId, maxResults],
-    queryFn: ({ pageParam }) => apiProvider.getVideoComments(videoId, maxResults, pageParam as string | undefined),
+    queryFn: ({ pageParam, signal }) => apiProvider.getVideoComments(videoId, maxResults, pageParam as string | undefined, signal),
     getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
     initialPageParam: undefined,
     enabled: !!videoId,

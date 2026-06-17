@@ -16,7 +16,7 @@ const mockVideoSummary: VideoSummary = {
 };
 
 export const mockProvider: IVideoProvider = {
-  async getTrendingVideos(_regionCode = 'IN', maxResults = 50, _pageToken?: string): Promise<PaginatedResponse<VideoSummary>> {
+  async getTrendingVideos(_regionCode = 'IN', maxResults = 50, _pageToken?: string, _signal?: AbortSignal): Promise<PaginatedResponse<VideoSummary>> {
     await delay(500);
     const items = Array(maxResults).fill(null).map((_, i) => ({
       ...mockVideoSummary,
@@ -26,7 +26,7 @@ export const mockProvider: IVideoProvider = {
     return { items, nextPageToken: 'mock-next-page-token' };
   },
 
-  async getSearchSuggestions(query: string): Promise<string[]> {
+  async getSearchSuggestions(query: string, _signal?: AbortSignal): Promise<string[]> {
     await delay(200);
     if (!query.trim()) return [];
     return [
@@ -38,7 +38,7 @@ export const mockProvider: IVideoProvider = {
     ];
   },
 
-  async getSearchVideos(query: string, maxResults = 25, _pageToken?: string): Promise<PaginatedResponse<VideoSummary>> {
+  async getSearchVideos(query: string, maxResults = 25, _pageToken?: string, _signal?: AbortSignal): Promise<PaginatedResponse<VideoSummary>> {
     await delay(500);
     const items = Array(maxResults).fill(null).map((_, i) => ({
       ...mockVideoSummary,
@@ -48,7 +48,7 @@ export const mockProvider: IVideoProvider = {
     return { items, nextPageToken: 'mock-search-next-token' };
   },
 
-  async getVideoDetails(videoId: string): Promise<VideoDetails> {
+  async getVideoDetails(videoId: string, _signal?: AbortSignal): Promise<VideoDetails> {
     await delay(300);
     return {
       ...mockVideoSummary,
@@ -61,7 +61,7 @@ export const mockProvider: IVideoProvider = {
     };
   },
 
-  async getChannelDetails(channelId: string): Promise<ChannelDetails> {
+  async getChannelDetails(channelId: string, _signal?: AbortSignal): Promise<ChannelDetails> {
     await delay(300);
     return {
       id: channelId,
@@ -75,7 +75,7 @@ export const mockProvider: IVideoProvider = {
     };
   },
 
-  async getVideoComments(videoId: string, maxResults = 20, _pageToken?: string): Promise<PaginatedResponse<CommentData>> {
+  async getVideoComments(videoId: string, maxResults = 20, _pageToken?: string, _signal?: AbortSignal): Promise<PaginatedResponse<CommentData>> {
     await delay(400);
     const items = Array(maxResults).fill(null).map((_, i) => ({
       id: `comment-${i}`,

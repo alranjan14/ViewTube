@@ -1,16 +1,18 @@
+import React, { lazy } from "react";
 import { Provider } from "react-redux";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Body from "./components/Body";
-import ChannelPage from "./pages/ChannelPage";
-import HomePage from "./pages/HomePage";
-import LibraryPage from "./pages/LibraryPage";
-import NotFoundPage from "./pages/NotFoundPage";
-import PlaylistPage from "./pages/PlaylistPage";
-import SearchResultsPage from "./pages/SearchResultsPage";
-import SettingsPage from "./pages/SettingsPage";
-import WatchPage from "./pages/WatchPage";
 import { ROUTES } from "./shared/routes";
 import store from "./utils/store";
+
+const ChannelPage = lazy(() => import("./pages/ChannelPage"));
+const HomePage = lazy(() => import("./pages/HomePage"));
+const LibraryPage = lazy(() => import("./pages/LibraryPage"));
+const NotFoundPage = lazy(() => import("./pages/NotFoundPage"));
+const PlaylistPage = lazy(() => import("./pages/PlaylistPage"));
+const SearchResultsPage = lazy(() => import("./pages/SearchResultsPage"));
+const SettingsPage = lazy(() => import("./pages/SettingsPage"));
+const WatchPage = lazy(() => import("./pages/WatchPage"));
 
 const appRouter = createBrowserRouter([
   {
