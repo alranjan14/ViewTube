@@ -75,6 +75,32 @@ export const youtubeProvider: IVideoProvider = {
     };
   },
 
+  async getChannelVideos(channelId: string, maxResults = 25, pageToken?: string, signal?: AbortSignal): Promise<PaginatedResponse<VideoSummary>> {
+    const params = new URLSearchParams({
+      part: 'snippet',
+      channelId,
+      maxResults: String(maxResults),
+      order: 'date',
+      type: 'video',
+      key: YOUTUBE_API_KEY,
+    });
+    if (pageToken) params.append('pageToken', pageToken);
+
+    const data = await httpClient<any>(`${YOUTUBE_API_BASE_URL}/search?${params.toString()}`, { signal });
+
+    return {
+      items: (data.items || []).map((item: any) => ({
+        id: item.id.videoId,
+        title: item.snippet.title,
+        channelId: item.snippet.channelId,
+        channelTitle: item.snippet.channelTitle,
+        thumbnailUrl: item.snippet.thumbnails?.medium?.url || '',
+        publishedAt: item.snippet.publishedAt,
+      })),
+      nextPageToken: data.nextPageToken,
+    };
+  },
+
   async getVideoDetails(videoId: string, signal?: AbortSignal): Promise<VideoDetails> {
     const params = new URLSearchParams({
       part: 'snippet,contentDetails,statistics,liveStreamingDetails',

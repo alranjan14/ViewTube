@@ -1,10 +1,11 @@
 import { CircleUser, MoreVertical } from "lucide-react";
 import React from "react";
+import { Link } from "react-router-dom";
 import { VideoSummary } from "../shared/types/api";
 import IconButton from "../shared/ui/IconButton";
 
 const VideoCard = ({ info }: { info: VideoSummary }) => {
-  const { title, channelTitle, thumbnailUrl, viewCount, publishedAt, duration } = info;
+  const { title, channelId, channelTitle, thumbnailUrl, viewCount, publishedAt, duration } = info;
 
   // Format views
   const formatViews = (val?: string | number) => {
@@ -57,7 +58,13 @@ const VideoCard = ({ info }: { info: VideoSummary }) => {
             {title}
           </h3>
           <div className="text-sm text-slate-500 mt-1 flex flex-col">
-            <span className="hover:text-slate-800 transition-colors">{channelTitle}</span>
+            <Link 
+              to={`/channel/${channelId}`}
+              onClick={(e) => e.stopPropagation()} 
+              className="hover:text-slate-800 transition-colors w-fit"
+            >
+              {channelTitle}
+            </Link>
             <div className="flex items-center text-xs mt-0.5">
               <span>{formatViews(viewCount)}</span>
               {publishedAt && (

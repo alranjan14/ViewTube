@@ -33,6 +33,17 @@ export const useSearchVideos = (query: string, maxResults = 25) => {
   });
 };
 
+export const useChannelVideos = (channelId: string, maxResults = 25) => {
+  return useInfiniteQuery<PaginatedResponse<VideoSummary>, Error>({
+    queryKey: ['channelVideos', channelId, maxResults],
+    queryFn: ({ pageParam, signal }) => apiProvider.getChannelVideos(channelId, maxResults, pageParam as string | undefined, signal),
+    getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
+    initialPageParam: undefined,
+    enabled: !!channelId,
+    staleTime: 1000 * 60 * 5,
+  });
+};
+
 export const useVideoDetails = (videoId: string) => {
   return useQuery<VideoDetails, Error>({
     queryKey: ['videoDetails', videoId],
