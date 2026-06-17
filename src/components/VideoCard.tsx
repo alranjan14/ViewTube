@@ -1,10 +1,11 @@
 import { CircleUser, MoreVertical } from "lucide-react";
 import React from "react";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { VideoSummary } from "../shared/types/api";
 import IconButton from "../shared/ui/IconButton";
 
 const VideoCard = ({ info }: { info: VideoSummary }) => {
+  const navigate = useNavigate();
   const { title, channelId, channelTitle, thumbnailUrl, viewCount, publishedAt, duration } = info;
 
   // Format views
@@ -54,18 +55,20 @@ const VideoCard = ({ info }: { info: VideoSummary }) => {
           <CircleUser size={36} strokeWidth={1} className="text-slate-400" />
         </div>
         <div className="flex flex-col overflow-hidden w-full">
-          <h3 className="font-semibold text-slate-900 line-clamp-2 leading-tight group-hover:text-blue-600 transition-colors">
-            {title}
-          </h3>
-          <div className="text-sm text-slate-500 mt-1 flex flex-col">
-            <Link 
-              to={`/channel/${channelId}`}
-              onClick={(e) => e.stopPropagation()} 
-              className="hover:text-slate-800 transition-colors w-fit"
+          <div className="flex flex-col gap-1 w-full pt-1 overflow-hidden">
+            <h3 className="text-base font-semibold leading-tight text-slate-900 line-clamp-2">
+              {title}
+            </h3>
+            <div 
+              onClick={(e) => {
+                e.stopPropagation();
+                navigate('/channel/' + channelId);
+              }}
+              className="text-sm text-slate-500 hover:text-slate-800 transition-colors mt-1 w-fit z-10 relative cursor-pointer"
             >
               {channelTitle}
-            </Link>
-            <div className="flex items-center text-xs mt-0.5">
+            </div>
+            <div className="flex items-center text-sm text-slate-500">
               <span>{formatViews(viewCount)}</span>
               {publishedAt && (
                 <>
