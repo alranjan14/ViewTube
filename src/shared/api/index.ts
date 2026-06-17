@@ -1,5 +1,9 @@
+import { mockProvider } from './mockProvider';
+import { IVideoProvider } from './videoProvider';
 import { youtubeProvider } from './youtubeProvider';
 
-// We default to the real YouTube API provider. 
+const useMockApi = import.meta.env.VITE_USE_MOCK_API === 'true';
+
+export const apiProvider: IVideoProvider = useMockApi ? mockProvider : youtubeProvider;
+
 // We rely on MSW (Mock Service Worker) for mocking endpoints during development and tests!
-export const apiProvider = youtubeProvider;

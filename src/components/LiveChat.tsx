@@ -1,5 +1,7 @@
-import { useEffect, useState } from "react";
+import { Send, X } from "lucide-react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import IconButton from "../shared/ui/IconButton";
 import { addMessage, ChatMessage } from "../utils/chatSlice";
 import { generateRandomName, makeRandomMessage } from "../utils/helper";
 import { RootState } from "../utils/store";
@@ -17,7 +19,6 @@ const LiveChat = () => {
   useEffect(() => {
     const i = setInterval(() => {
       // API Polling
-
       dispatch(
         addMessage({
           id: createMessageId(),
@@ -31,44 +32,64 @@ const LiveChat = () => {
   }, [dispatch]);
 
   return (
-    <>
-      <div className="w-full h-[600px] ml-2 p-2 border border-black bg-slate-100 rounded-lg overflow-y-scroll flex flex-col-reverse">
+    <div className="w-full h-[600px] flex flex-col border border-slate-200 bg-white rounded-xl overflow-hidden shadow-sm">
+      {/* Header */}
+      <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100 bg-slate-50">
+        <h3 className="font-semibold text-slate-800">Top chat</h3>
+        <IconButton size="sm" aria-label="Close chat" onClick={() => {}}>
+          <X size={20} className="text-slate-600" />
+        </IconButton>
+      </div>
+
+      {/* Messages */}
+      <div className="flex-1 overflow-y-auto flex flex-col-reverse custom-scrollbar py-2">
         <div>
-          {
-            chatMessages.map((c: ChatMessage) => (
-              <ChatMessageComponent key={c.id} name={c.name} message={c.message} />
-            ))
-          }
+          {chatMessages.map((c: ChatMessage) => (
+            <ChatMessageComponent key={c.id} name={c.name} message={c.message} />
+          ))}
         </div>
       </div>
 
-      <form
-        className="w-full p-2 ml-2 border border-black"
-        onSubmit={(e) => {
-          e.preventDefault();
-
-          dispatch(
-            addMessage({
-              id: createMessageId(),
-              name: "Alok Ranjan",
-              message: liveMessage,
-            })
-          );
-          setLiveMessage("");
-        }}
-      >
-        <input
-          className="px-2 w-96"
-          type="text"
-          aria-label="Live chat message"
-          value={liveMessage}
-          onChange={(e) => {
-            setLiveMessage(e.target.value);
+      {/* Input Area */}
+      <div className="border-t border-slate-100 p-3 bg-slate-50">
+        <form
+          className="flex items-center gap-2"
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (!liveMessage.trim()) return;
+            
+            dispatch(
+              addMessage({
+                id: createMessageId(),
+                name: "Alok Ranjan",
+                message: liveMessage,
+              })
+            );
+            setLiveMessage("");
           }}
-        />
-        <button className="px-2 mx-2 bg-green-100">Send</button>
-      </form>
-    </>
+        >
+          <div className="flex-1 bg-white border border-slate-200 rounded-full flex items-center px-4 py-2 focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500 transition-all">
+            <input
+              className="w-full bg-transparent border-none outline-none text-sm text-slate-900 placeholder:text-slate-500"
+              type="text"
+              placeholder="Chat..."
+              aria-label="Live chat message"
+              value={liveMessage}
+              onChange={(e) => setLiveMessage(e.target.value)}
+            />
+          </div>
+          <IconButton 
+            type="submit" 
+            variant="solid" 
+            className="flex-shrink-0 bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50"
+            disabled={!liveMessage.trim()}
+            aria-label="Send message"
+          >
+            <Send size={18} className="ml-0.5" />
+          </IconButton>
+        </form>
+      </div>
+    </div>
   );
 };
 export default LiveChat;

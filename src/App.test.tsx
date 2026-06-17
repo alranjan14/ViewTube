@@ -21,6 +21,6 @@ test("renders the app shell", () => {
       </QueryClientProvider>
     </Provider>
   );
-  expect(screen.getByRole("link", { name: /videotube home/i })).toBeInTheDocument();
-  expect(screen.getByRole("navigation", { name: /primary navigation/i })).toBeInTheDocument();
+  expect(screen.getByRole("link", { name: /videotube/i })).toBeInTheDocument();
+  expect(screen.getByRole("complementary", { name: /primary navigation/i })).toBeInTheDocument();
 });

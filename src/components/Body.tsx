@@ -9,7 +9,7 @@ const Body = () => {
       <Head />
       <div className="flex">
         <Sidebar />
-        <main className="min-w-0 flex-1">
+        <main id="main-content" className="min-w-0 flex-1">
           <Outlet />
         </main>
       </div>
