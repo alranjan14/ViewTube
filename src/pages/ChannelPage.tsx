@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import VideoCard from "../components/VideoCard";
 import { useChannelDetails, useChannelVideos } from "../shared/hooks/queries";
+import { useIntersectionObserver } from "../shared/hooks/useIntersectionObserver";
 import Button from "../shared/ui/Button";
 import Skeleton from "../shared/ui/Skeleton";
 
@@ -24,24 +25,11 @@ const ChannelPage = () => {
     isFetchingNextPage,
   } = useChannelVideos(channelId!);
 
-  const observerTarget = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
-          fetchNextPage();
-        }
-      },
-      { threshold: 0.1, rootMargin: "200px" }
-    );
-
-    if (observerTarget.current) {
-      observer.observe(observerTarget.current);
+  const loadMoreRef = useIntersectionObserver(() => {
+    if (hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
     }
-
-    return () => observer.disconnect();
-  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
+  }, { enabled: hasNextPage && !isFetchingNextPage });
 
   if (isChannelLoading) {
     return (
@@ -179,11 +167,16 @@ const ChannelPage = () => {
                   ))}
                 </div>
                 {/* Intersection Observer Target */}
-                <div ref={observerTarget} className="w-full h-20 flex items-center justify-center mt-4">
-                  {isFetchingNextPage && (
-                    <div className="w-8 h-8 border-4 border-slate-200 border-t-slate-800 rounded-full animate-spin"></div>
-                  )}
-                </div>
+                {hasNextPage && (
+                  <div ref={loadMoreRef} className="w-full h-20 flex items-center justify-center mt-4">
+                    {isFetchingNextPage && (
+                      <div className="flex items-center gap-2 text-slate-500 font-medium">
+                        <span className="w-5 h-5 border-2 border-slate-300 border-t-slate-600 rounded-full animate-spin"></span>
+                        Loading more videos...
+                      </div>
+                    )}
+                  </div>
+                )}
               </>
             )}
           </div>
