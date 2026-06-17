@@ -3,6 +3,8 @@ import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { useSearchSuggestions } from "../shared/hooks/queries";
+import { useDebounce } from "../shared/hooks/useDebounce";
+import { useSearchHistory } from "../shared/hooks/useSearchHistory";
 import { ROUTES } from "../shared/routes";
 import IconButton from "../shared/ui/IconButton";
 import { toggleMenu } from "../utils/appSlice";
@@ -14,10 +16,18 @@ const Head = () => {
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { data: suggestions = [] } = useSearchSuggestions(searchQuery);
+  
+  const debouncedSearchQuery = useDebounce(searchQuery, 300);
+  const { data: suggestions = [] } = useSearchSuggestions(debouncedSearchQuery);
+  const { history, addSearch, removeSearch } = useSearchHistory();
+
+  // Determine what to show in the dropdown
+  const showHistory = !debouncedSearchQuery.trim() && history.length > 0;
+  const dropdownItems = showHistory ? history : suggestions;
 
   const handleSearch = (query: string) => {
     if (!query.trim()) return;
+    addSearch(query);
     setShowSuggestions(false);
     setSelectedIndex(-1);
     navigate(`${ROUTES.SEARCH}?search_query=${encodeURIComponent(query)}`);
@@ -25,19 +35,19 @@ const Head = () => {
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (selectedIndex >= 0 && selectedIndex < suggestions.length) {
-      handleSearch(suggestions[selectedIndex]);
+    if (selectedIndex >= 0 && selectedIndex < dropdownItems.length) {
+      handleSearch(dropdownItems[selectedIndex]);
     } else {
       handleSearch(searchQuery);
     }
   };
 
   const onKeyDown = (e: React.KeyboardEvent) => {
-    if (!showSuggestions || suggestions.length === 0) return;
+    if (!showSuggestions || dropdownItems.length === 0) return;
 
     if (e.key === "ArrowDown") {
       e.preventDefault();
-      setSelectedIndex((prev) => (prev < suggestions.length - 1 ? prev + 1 : prev));
+      setSelectedIndex((prev) => (prev < dropdownItems.length - 1 ? prev + 1 : prev));
     } else if (e.key === "ArrowUp") {
       e.preventDefault();
       setSelectedIndex((prev) => (prev > -1 ? prev - 1 : -1));
@@ -109,23 +119,40 @@ const Head = () => {
         </IconButton>
 
         {/* Search Suggestions Dropdown */}
-        {showSuggestions && suggestions.length > 0 && (
+        {showSuggestions && dropdownItems.length > 0 && (
           <div className="absolute top-14 left-4 lg:left-12 right-4 lg:right-12 bg-white rounded-2xl shadow-xl border border-slate-100 py-3 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200 z-50">
             <ul role="listbox" id="search-suggestions">
-              {suggestions.map((suggestion, index) => (
+              {dropdownItems.map((item, index) => (
                 <li
-                  key={suggestion}
+                  key={`${showHistory ? 'history' : 'suggestion'}-${item}`}
                   id={`suggestion-${index}`}
                   role="option"
                   aria-selected={selectedIndex === index}
-                  className={`flex items-center gap-3 px-5 py-2.5 cursor-pointer text-slate-700 font-medium transition-colors ${selectedIndex === index ? 'bg-slate-100 text-slate-900' : 'hover:bg-slate-50'}`}
-                  onClick={() => {
-                    setSearchQuery(suggestion);
-                    handleSearch(suggestion);
-                  }}
+                  className={`flex items-center gap-3 px-5 py-2.5 cursor-pointer text-slate-700 font-medium transition-colors ${selectedIndex === index ? 'bg-slate-100 text-slate-900' : 'hover:bg-slate-50 group/item'}`}
                 >
-                  <Search size={16} className="text-slate-400 flex-shrink-0" />
-                  <span className="truncate">{suggestion}</span>
+                  <div 
+                    className="flex items-center gap-3 flex-1 overflow-hidden"
+                    onClick={() => {
+                      setSearchQuery(item);
+                      handleSearch(item);
+                    }}
+                  >
+                    <Search size={16} className="text-slate-400 flex-shrink-0" />
+                    <span className="truncate flex-1">{item}</span>
+                  </div>
+                  
+                  {showHistory && (
+                    <button
+                      type="button"
+                      className="text-blue-600 opacity-0 group-hover/item:opacity-100 transition-opacity text-sm hover:underline"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        removeSearch(item);
+                      }}
+                    >
+                      Remove
+                    </button>
+                  )}
                 </li>
               ))}
             </ul>

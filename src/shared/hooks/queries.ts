@@ -1,6 +1,6 @@
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import { apiProvider } from '../api';
-import { ChannelDetails, CommentData, PaginatedResponse, VideoDetails, VideoSummary } from '../types/api';
+import { ChannelDetails, CommentData, PaginatedResponse, VideoDetails, VideoSummary, SearchFilters } from '../types/api';
 
 export const useTrendingVideos = (regionCode = 'IN', maxResults = 50, videoCategoryId?: string) => {
   return useInfiniteQuery<PaginatedResponse<VideoSummary>, Error>({
@@ -22,10 +22,10 @@ export const useSearchSuggestions = (query: string) => {
   });
 };
 
-export const useSearchVideos = (query: string, maxResults = 25) => {
+export const useSearchVideos = (query: string, maxResults = 25, filters?: SearchFilters) => {
   return useInfiniteQuery<PaginatedResponse<VideoSummary>, Error>({
-    queryKey: ['searchVideos', query, maxResults],
-    queryFn: ({ pageParam, signal }) => apiProvider.getSearchVideos(query, maxResults, pageParam as string | undefined, signal),
+    queryKey: ['searchVideos', query, maxResults, filters],
+    queryFn: ({ pageParam, signal }) => apiProvider.getSearchVideos(query, maxResults, pageParam as string | undefined, filters, signal),
     getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
     initialPageParam: undefined,
     enabled: !!query.trim(),

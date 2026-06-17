@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { ChannelDetails, CommentData, PaginatedResponse, VideoDetails, VideoSummary } from '../types/api';
+import { ChannelDetails, CommentData, PaginatedResponse, VideoDetails, VideoSummary, SearchFilters } from '../types/api';
 import { IVideoProvider } from './videoProvider';
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -38,12 +38,12 @@ export const mockProvider: IVideoProvider = {
     ];
   },
 
-  async getSearchVideos(query: string, maxResults = 25, _pageToken?: string, _signal?: AbortSignal): Promise<PaginatedResponse<VideoSummary>> {
+  async getSearchVideos(query: string, maxResults = 25, _pageToken?: string, filters?: SearchFilters, _signal?: AbortSignal): Promise<PaginatedResponse<VideoSummary>> {
     await delay(500);
     const items = Array(maxResults).fill(null).map((_, i) => ({
       ...mockVideoSummary,
       id: `search-video-${i}-${Date.now()}`,
-      title: `${query} - Result #${i + 1}`,
+      title: `${query} - Result #${i + 1} ${filters?.order ? `(${filters.order})` : ''}`,
     }));
     return { items, nextPageToken: 'mock-search-next-token' };
   },
