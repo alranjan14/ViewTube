@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { ChannelDetails, CommentData, PaginatedResponse, VideoDetails, VideoSummary } from '../types/api';
+import { ChannelDetails, CommentData, PaginatedResponse, VideoDetails, VideoSummary, SearchFilters } from '../types/api';
 import { httpClient } from './httpClient';
 import { IVideoProvider } from './videoProvider';
 
@@ -51,7 +51,7 @@ export const youtubeProvider: IVideoProvider = {
     return Array.isArray(data?.[1]) ? data[1] : [];
   },
 
-  async getSearchVideos(query: string, maxResults = 25, pageToken?: string, signal?: AbortSignal): Promise<PaginatedResponse<VideoSummary>> {
+  async getSearchVideos(query: string, maxResults = 25, pageToken?: string, filters?: SearchFilters, signal?: AbortSignal): Promise<PaginatedResponse<VideoSummary>> {
     const params = new URLSearchParams({
       part: 'snippet',
       q: query,
@@ -60,6 +60,8 @@ export const youtubeProvider: IVideoProvider = {
       key: YOUTUBE_API_KEY,
     });
     if (pageToken) params.append('pageToken', pageToken);
+    if (filters?.order) params.append('order', filters.order);
+    if (filters?.publishedAfter) params.append('publishedAfter', filters.publishedAfter);
 
     const data = await httpClient<any>(`${YOUTUBE_API_BASE_URL}/search?${params.toString()}`, { signal });
 

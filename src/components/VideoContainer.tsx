@@ -1,11 +1,18 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { useTrendingVideos } from "../shared/hooks/queries";
+import { useIntersectionObserver } from "../shared/hooks/useIntersectionObserver";
 import Skeleton from "../shared/ui/Skeleton";
 import VideoCard, { AdVideoCard } from "./VideoCard";
 
 const VideoContainer = ({ activeCategory }: { activeCategory?: string }) => {
   const { data, isLoading, error, fetchNextPage, hasNextPage, isFetchingNextPage } = useTrendingVideos('IN', 50, activeCategory);
+
+  const loadMoreRef = useIntersectionObserver(() => {
+    if (hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  }, { enabled: hasNextPage && !isFetchingNextPage });
 
   if (isLoading) {
     return (
@@ -47,14 +54,15 @@ const VideoContainer = ({ activeCategory }: { activeCategory?: string }) => {
       </div>
       
       {hasNextPage && (
-        <div className="flex justify-center my-6">
-          <button 
-            onClick={() => fetchNextPage()} 
-            disabled={isFetchingNextPage}
-            className="px-6 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-900 font-semibold rounded-full transition-colors disabled:opacity-50"
-          >
-            {isFetchingNextPage ? 'Loading more...' : 'Load More'}
-          </button>
+        <div ref={loadMoreRef} className="flex justify-center my-8 w-full">
+          {isFetchingNextPage ? (
+            <div className="flex items-center gap-2 text-slate-500 font-medium">
+              <span className="w-5 h-5 border-2 border-slate-300 border-t-slate-600 rounded-full animate-spin"></span>
+              Loading more videos...
+            </div>
+          ) : (
+            <div className="h-10 w-full" />
+          )}
         </div>
       )}
     </div>
