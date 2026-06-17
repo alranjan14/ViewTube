@@ -2,10 +2,10 @@ import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import { apiProvider } from '../api';
 import { ChannelDetails, CommentData, PaginatedResponse, VideoDetails, VideoSummary } from '../types/api';
 
-export const useTrendingVideos = (regionCode = 'IN', maxResults = 50) => {
+export const useTrendingVideos = (regionCode = 'IN', maxResults = 50, videoCategoryId?: string) => {
   return useInfiniteQuery<PaginatedResponse<VideoSummary>, Error>({
-    queryKey: ['trendingVideos', regionCode, maxResults],
-    queryFn: ({ pageParam, signal }) => apiProvider.getTrendingVideos(regionCode, maxResults, pageParam as string | undefined, signal),
+    queryKey: ['trendingVideos', regionCode, maxResults, videoCategoryId],
+    queryFn: ({ pageParam, signal }) => apiProvider.getTrendingVideos(regionCode, maxResults, pageParam as string | undefined, videoCategoryId, signal),
     getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
     initialPageParam: undefined,
     staleTime: 1000 * 60 * 5, // 5 minutes

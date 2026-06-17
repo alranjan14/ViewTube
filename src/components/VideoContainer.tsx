@@ -4,8 +4,8 @@ import { useTrendingVideos } from "../shared/hooks/queries";
 import Skeleton from "../shared/ui/Skeleton";
 import VideoCard, { AdVideoCard } from "./VideoCard";
 
-const VideoContainer = () => {
-  const { data, isLoading, error, fetchNextPage, hasNextPage, isFetchingNextPage } = useTrendingVideos();
+const VideoContainer = ({ activeCategory }: { activeCategory?: string }) => {
+  const { data, isLoading, error, fetchNextPage, hasNextPage, isFetchingNextPage } = useTrendingVideos('IN', 50, activeCategory);
 
   if (isLoading) {
     return (
