@@ -1,11 +1,13 @@
-import { ThumbsUp, ThumbsDown, Share2, Plus, CircleUser } from "lucide-react";
+import { ThumbsUp, ThumbsDown, Share2, Plus, CircleUser, Check } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link, useSearchParams } from "react-router-dom";
 import CommentsContainer from "../components/CommentsContainer";
 import LiveChat from "../components/LiveChat";
-import { useVideoDetails } from "../shared/hooks/queries";
+import RelatedVideos from "../components/RelatedVideos";
+import { useVideoDetails, useChannelDetails } from "../shared/hooks/queries";
 import { useLibrary } from "../shared/hooks/useLibrary";
+import { useWatchLater } from "../shared/hooks/useWatchLater";
 import Button from "../shared/ui/Button";
 import Skeleton from "../shared/ui/Skeleton";
 import { closeMenu } from "../utils/appSlice";
@@ -17,7 +19,9 @@ const WatchPage = () => {
 
   const dispatch = useDispatch();
   const { data: videoDetails, isLoading } = useVideoDetails(videoId || "");
+  const { data: channelDetails } = useChannelDetails(videoDetails?.channelId || "");
   const { addToHistory } = useLibrary();
+  const { isSaved, toggleSave } = useWatchLater();
 
   useEffect(() => {
     dispatch(closeMenu());
@@ -76,10 +80,18 @@ const WatchPage = () => {
               {/* Channel Info */}
               <div className="flex items-center gap-4">
                 <Link to={`/channel/${videoDetails.channelId}`} className="flex items-center gap-3 cursor-pointer group outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded">
-                  <CircleUser size={40} strokeWidth={1} className="text-slate-400 group-hover:text-slate-600 transition-colors" />
+                  {channelDetails?.thumbnailUrl ? (
+                    <img src={channelDetails.thumbnailUrl} alt={channelDetails.title} className="w-10 h-10 rounded-full object-cover group-hover:ring-2 ring-blue-500 transition-all" />
+                  ) : (
+                    <CircleUser size={40} strokeWidth={1} className="text-slate-400 group-hover:text-slate-600 transition-colors" />
+                  )}
                   <div className="flex flex-col">
-                    <span className="font-bold text-slate-900 group-hover:text-blue-600 transition-colors">{videoDetails.channelTitle}</span>
-                    <span className="text-xs text-slate-500">1.2M subscribers</span>
+                    <span className="font-bold text-slate-900 group-hover:text-blue-600 transition-colors">
+                      {channelDetails?.title || videoDetails.channelTitle}
+                    </span>
+                    <span className="text-xs text-slate-500">
+                      {channelDetails?.subscriberCount ? formatCompact(channelDetails.subscriberCount) + " subscribers" : "Loading..."}
+                    </span>
                   </div>
                 </Link>
                 <Button variant="primary" className="ml-2">Subscribe</Button>
@@ -102,9 +114,12 @@ const WatchPage = () => {
                   Share
                 </button>
                 
-                <button className="flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 transition-colors rounded-full font-medium text-sm">
-                  <Plus size={18} />
-                  Save
+                <button 
+                  onClick={() => toggleSave(videoDetails)}
+                  className={`flex items-center gap-2 px-4 py-2 hover:bg-slate-200 transition-colors rounded-full font-medium text-sm ${isSaved(videoDetails.id) ? 'bg-slate-200 text-slate-900' : 'bg-slate-100'}`}
+                >
+                  {isSaved(videoDetails.id) ? <Check size={18} /> : <Plus size={18} />}
+                  {isSaved(videoDetails.id) ? "Saved" : "Save"}
                 </button>
               </div>
             </div>
@@ -140,12 +155,9 @@ const WatchPage = () => {
       {/* Right Column: Live Chat & Up Next */}
       <div className="w-full lg:w-[400px] flex-shrink-0 flex flex-col gap-4">
         {videoDetails?.liveStreaming?.isLive && <LiveChat />}
-        {/* Placeholder for related videos rail */}
+        {/* Related videos rail */}
         {!videoDetails?.liveStreaming?.isLive && (
-          <div className="flex flex-col gap-3 p-4 bg-slate-50 border border-slate-100 rounded-xl">
-             <h3 className="font-semibold text-slate-800">Up Next</h3>
-             <p className="text-sm text-slate-500">Related videos will appear here.</p>
-          </div>
+          <RelatedVideos categoryId={videoDetails?.categoryId} />
         )}
       </div>
     </div>
