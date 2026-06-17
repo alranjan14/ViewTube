@@ -9,7 +9,7 @@ const YOUTUBE_SUGGESTIONS_API_URL = 'https://suggestqueries.google.com/complete/
 const YOUTUBE_API_KEY = import.meta.env.VITE_YOUTUBE_API_KEY || '';
 
 export const youtubeProvider: IVideoProvider = {
-  async getTrendingVideos(regionCode = 'IN', maxResults = 50, pageToken?: string): Promise<PaginatedResponse<VideoSummary>> {
+  async getTrendingVideos(regionCode = 'IN', maxResults = 50, pageToken?: string, signal?: AbortSignal): Promise<PaginatedResponse<VideoSummary>> {
     const params = new URLSearchParams({
       part: 'snippet,contentDetails,statistics',
       chart: 'mostPopular',
@@ -19,7 +19,7 @@ export const youtubeProvider: IVideoProvider = {
     });
     if (pageToken) params.append('pageToken', pageToken);
 
-    const data = await httpClient<any>(`${YOUTUBE_API_BASE_URL}/videos?${params.toString()}`);
+    const data = await httpClient<any>(`${YOUTUBE_API_BASE_URL}/videos?${params.toString()}`, { signal });
 
     return {
       items: (data.items || []).map((item: any) => ({
@@ -36,7 +36,7 @@ export const youtubeProvider: IVideoProvider = {
     };
   },
 
-  async getSearchSuggestions(query: string): Promise<string[]> {
+  async getSearchSuggestions(query: string, signal?: AbortSignal): Promise<string[]> {
     if (!query.trim()) return [];
 
     const params = new URLSearchParams({
@@ -46,11 +46,11 @@ export const youtubeProvider: IVideoProvider = {
     });
 
     // The suggest API returns an array like: [ "query", ["suggestion1", "suggestion2"] ]
-    const data = await httpClient<any>(`${YOUTUBE_SUGGESTIONS_API_URL}?${params.toString()}`);
+    const data = await httpClient<any>(`${YOUTUBE_SUGGESTIONS_API_URL}?${params.toString()}`, { signal });
     return Array.isArray(data?.[1]) ? data[1] : [];
   },
 
-  async getSearchVideos(query: string, maxResults = 25, pageToken?: string): Promise<PaginatedResponse<VideoSummary>> {
+  async getSearchVideos(query: string, maxResults = 25, pageToken?: string, signal?: AbortSignal): Promise<PaginatedResponse<VideoSummary>> {
     const params = new URLSearchParams({
       part: 'snippet',
       q: query,
@@ -60,7 +60,7 @@ export const youtubeProvider: IVideoProvider = {
     });
     if (pageToken) params.append('pageToken', pageToken);
 
-    const data = await httpClient<any>(`${YOUTUBE_API_BASE_URL}/search?${params.toString()}`);
+    const data = await httpClient<any>(`${YOUTUBE_API_BASE_URL}/search?${params.toString()}`, { signal });
 
     return {
       items: (data.items || []).map((item: any) => ({
@@ -75,14 +75,14 @@ export const youtubeProvider: IVideoProvider = {
     };
   },
 
-  async getVideoDetails(videoId: string): Promise<VideoDetails> {
+  async getVideoDetails(videoId: string, signal?: AbortSignal): Promise<VideoDetails> {
     const params = new URLSearchParams({
       part: 'snippet,contentDetails,statistics,liveStreamingDetails',
       id: videoId,
       key: YOUTUBE_API_KEY,
     });
 
-    const data = await httpClient<any>(`${YOUTUBE_API_BASE_URL}/videos?${params.toString()}`);
+    const data = await httpClient<any>(`${YOUTUBE_API_BASE_URL}/videos?${params.toString()}`, { signal });
     if (!data.items?.length) throw new Error('Video not found');
 
     const item = data.items[0];
@@ -108,14 +108,14 @@ export const youtubeProvider: IVideoProvider = {
     };
   },
 
-  async getChannelDetails(channelId: string): Promise<ChannelDetails> {
+  async getChannelDetails(channelId: string, signal?: AbortSignal): Promise<ChannelDetails> {
     const params = new URLSearchParams({
       part: 'snippet,statistics,brandingSettings',
       id: channelId,
       key: YOUTUBE_API_KEY,
     });
 
-    const data = await httpClient<any>(`${YOUTUBE_API_BASE_URL}/channels?${params.toString()}`);
+    const data = await httpClient<any>(`${YOUTUBE_API_BASE_URL}/channels?${params.toString()}`, { signal });
     if (!data.items?.length) throw new Error('Channel not found');
 
     const item = data.items[0];
@@ -131,7 +131,7 @@ export const youtubeProvider: IVideoProvider = {
     };
   },
 
-  async getVideoComments(videoId: string, maxResults = 20, pageToken?: string): Promise<PaginatedResponse<CommentData>> {
+  async getVideoComments(videoId: string, maxResults = 20, pageToken?: string, signal?: AbortSignal): Promise<PaginatedResponse<CommentData>> {
     const params = new URLSearchParams({
       part: 'snippet,replies',
       videoId,
@@ -140,7 +140,7 @@ export const youtubeProvider: IVideoProvider = {
     });
     if (pageToken) params.append('pageToken', pageToken);
 
-    const data = await httpClient<any>(`${YOUTUBE_API_BASE_URL}/commentThreads?${params.toString()}`);
+    const data = await httpClient<any>(`${YOUTUBE_API_BASE_URL}/commentThreads?${params.toString()}`, { signal });
 
     return {
       items: (data.items || []).map((item: any) => {

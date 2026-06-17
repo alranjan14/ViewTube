@@ -22,9 +22,23 @@ const VideoCard = ({ info }: { info: VideoSummary }) => {
       <div className="relative aspect-video w-full overflow-hidden rounded-xl bg-slate-100">
         <img 
           className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" 
-          alt="thumbnail" 
-          src={thumbnailUrl} 
+          src={info.thumbnails?.medium || thumbnailUrl}
+          srcSet={
+            info.thumbnails
+              ? `${info.thumbnails.default || thumbnailUrl} 120w, 
+                 ${info.thumbnails.medium || thumbnailUrl} 320w, 
+                 ${info.thumbnails.high || thumbnailUrl} 480w,
+                 ${info.thumbnails.standard || thumbnailUrl} 640w`
+              : `${thumbnailUrl} 320w`
+          }
+          sizes="(max-width: 600px) 100vw, (max-width: 900px) 50vw, 33vw"
+          alt={title} 
           loading="lazy"
+          onError={(e) => {
+            const target = e.target as HTMLImageElement;
+            target.src = "https://via.placeholder.com/320x180.png?text=No+Thumbnail";
+            target.srcset = "";
+          }}
         />
         {duration && (
           <div className="absolute bottom-1.5 right-1.5 px-1.5 py-0.5 bg-black/80 text-white text-xs font-medium rounded">

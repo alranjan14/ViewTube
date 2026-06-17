@@ -12,10 +12,16 @@ interface RequestOptions extends RequestInit {
 }
 
 export async function httpClient<T>(url: string, options: RequestOptions = {}): Promise<T> {
-  const { timeoutMs = 8000, ...fetchOptions } = options;
+  const { timeoutMs = 8000, signal, ...fetchOptions } = options;
 
   const controller = new AbortController();
   const id = setTimeout(() => controller.abort(), timeoutMs);
+
+  if (signal) {
+    signal.addEventListener("abort", () => {
+      controller.abort();
+    });
+  }
 
   try {
     const response = await fetch(url, {
