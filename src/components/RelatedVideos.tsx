@@ -1,13 +1,13 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { useTrendingVideos } from '../shared/hooks/queries';
+import { useSearchVideos } from '../shared/hooks/queries';
 import { ROUTES, generatePath } from '../shared/routes';
 import Skeleton from '../shared/ui/Skeleton';
 import SearchVideoCard from './SearchVideoCard';
 
-const RelatedVideos = ({ categoryId }: { categoryId?: string }) => {
-  // We use trending videos filtered by category as a fallback since relatedToVideoId is deprecated
-  const { data, isLoading, error } = useTrendingVideos('IN', 20, categoryId);
+const RelatedVideos = ({ title }: { title?: string }) => {
+  // We use search based on video title as the best alternative to the deprecated relatedToVideoId
+  const { data, isLoading, error } = useSearchVideos(title || '', 20);
 
   if (isLoading) {
     return (
