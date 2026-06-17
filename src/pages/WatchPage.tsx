@@ -54,6 +54,10 @@ const WatchPage = () => {
   }, [dispatch]);
 
   useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [videoId]);
+
+  useEffect(() => {
     if (videoDetails) {
       addToHistory(videoDetails);
     }

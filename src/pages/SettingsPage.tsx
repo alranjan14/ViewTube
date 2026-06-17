@@ -37,7 +37,7 @@ const SettingsPage = () => {
           </div>
           <div className="p-5 space-y-4 text-sm text-slate-600">
             <p>
-              <strong>Data Storage:</strong> VideoTube prioritizes your privacy. We do not store any of your watch history, search queries, or watch later playlists on external servers. 
+              <strong>Data Storage:</strong> ViewTube prioritizes your privacy. We do not store any of your watch history, search queries, or watch later playlists on external servers. 
               All personal data generated during your session is saved strictly locally within your browser using <code className="bg-slate-100 px-1 py-0.5 rounded text-slate-800">localStorage</code>.
             </p>
             <p>

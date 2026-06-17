@@ -96,10 +96,7 @@ const SearchResultsPage = () => {
         {data?.pages.map((page, i) => (
           <React.Fragment key={i}>
             {page.items.map((video) => (
-              <Link key={video.id} to={generatePath(ROUTES.WATCH, {})} onClick={(e) => {
-                e.preventDefault();
-                window.location.href = `/watch?v=${video.id}`;
-              }}>
+              <Link key={video.id} to={`/watch?v=${video.id}`}>
                 <SearchVideoCard info={video} />
               </Link>
             ))}
