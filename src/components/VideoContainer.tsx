@@ -1,4 +1,5 @@
 import React from "react";
+import { AlertCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useTrendingVideos } from "../shared/hooks/queries";
 import { useIntersectionObserver } from "../shared/hooks/useIntersectionObserver";
@@ -34,7 +35,19 @@ const VideoContainer = ({ activeCategory }: { activeCategory?: string }) => {
   }
 
   if (error) {
-    return <div className="p-6 text-sm text-red-700 bg-red-50 rounded-lg m-4 border border-red-200">{error.message}</div>;
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[calc(100vh-180px)] px-4 m-4 sm:m-8 bg-slate-50 border border-slate-200 border-dashed rounded-3xl text-center">
+        <div className="w-20 h-20 bg-red-50 text-red-500 flex items-center justify-center rounded-full mb-6 shadow-sm border border-red-100">
+          <AlertCircle size={40} strokeWidth={1.5} />
+        </div>
+        <h3 className="text-xl sm:text-2xl font-bold text-slate-900 mb-3">No Trending Videos Found</h3>
+        <p className="text-slate-500 max-w-md leading-relaxed">
+          {error.message.includes("entity was not found") 
+            ? "YouTube doesn't currently have enough trending data for this specific category in your region. Please try exploring a different category!" 
+            : error.message}
+        </p>
+      </div>
+    );
   }
 
   return (
@@ -44,11 +57,14 @@ const VideoContainer = ({ activeCategory }: { activeCategory?: string }) => {
         
         {data?.pages.map((page, i) => (
           <React.Fragment key={i}>
-            {page.items.map((video) => (
-              <Link key={video.id} to={"/watch?v=" + video.id} className="outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-xl">
-                <VideoCard info={video} />
-              </Link>
-            ))}
+            {page.items.map((video, index) => {
+              if (i === 0 && index === 0) return null;
+              return (
+                <Link key={video.id} to={"/watch?v=" + video.id} className="outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-xl">
+                  <VideoCard info={video} />
+                </Link>
+              );
+            })}
           </React.Fragment>
         ))}
       </div>
