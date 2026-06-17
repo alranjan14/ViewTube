@@ -7,9 +7,15 @@ import { RootState } from "../utils/store";
 
 const SidebarItem = ({ icon: Icon, label, to, isMenuOpen }: { icon: React.ElementType; label: string; to: string; isMenuOpen: boolean }) => {
   const location = useLocation();
-  const currentPath = location.pathname + location.search;
-  const toPath = to.split('?')[0];
-  const isActive = currentPath === to || (to === ROUTES.HOME && location.pathname === ROUTES.HOME);
+  const currentPath = location.pathname + location.search + location.hash;
+  
+  let isActive = currentPath === to;
+  if (to === ROUTES.HOME && location.pathname === ROUTES.HOME) {
+    isActive = true;
+  }
+  if (location.pathname === ROUTES.LIBRARY && !location.hash && to === `${ROUTES.LIBRARY}#history`) {
+    isActive = true;
+  }
 
   return (
     <Link
@@ -40,9 +46,9 @@ const Sidebar = () => {
           <div className="h-px bg-slate-200 my-2 mx-2"></div>
           <div className="py-3 flex flex-col gap-1">
             <h3 className="px-4 text-base font-semibold mb-1 text-slate-900">You</h3>
-            <SidebarItem icon={History} label="History" to={ROUTES.LIBRARY} isMenuOpen={isMenuOpen} />
-            <SidebarItem icon={Clock} label="Watch Later" to={ROUTES.LIBRARY} isMenuOpen={isMenuOpen} />
-            <SidebarItem icon={ListVideo} label="Playlists" to={ROUTES.LIBRARY} isMenuOpen={isMenuOpen} />
+            <SidebarItem icon={History} label="History" to={`${ROUTES.LIBRARY}#history`} isMenuOpen={isMenuOpen} />
+            <SidebarItem icon={Clock} label="Watch Later" to={`${ROUTES.LIBRARY}#watch-later`} isMenuOpen={isMenuOpen} />
+            <SidebarItem icon={ListVideo} label="Playlists" to={`${ROUTES.LIBRARY}#playlists`} isMenuOpen={isMenuOpen} />
           </div>
           
           <div className="h-px bg-slate-200 my-2 mx-2"></div>

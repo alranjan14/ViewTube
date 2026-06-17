@@ -13,6 +13,7 @@ const Head = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
+  const [isListening, setIsListening] = useState(false);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -31,6 +32,40 @@ const Head = () => {
     setShowSuggestions(false);
     setSelectedIndex(-1);
     navigate(`${ROUTES.SEARCH}?search_query=${encodeURIComponent(query)}`);
+  };
+
+  const startVoiceSearch = () => {
+    // @ts-ignore - SpeechRecognition is not in standard TS lib
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    
+    if (!SpeechRecognition) {
+      alert("Your browser does not support voice search. Try Chrome or Safari.");
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = "en-US";
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
+    recognition.onstart = () => setIsListening(true);
+    recognition.onend = () => setIsListening(false);
+
+    recognition.onresult = (event: any) => {
+      const transcript = event.results[0][0].transcript;
+      setSearchQuery(transcript);
+      handleSearch(transcript);
+    };
+
+    recognition.onerror = (event: any) => {
+      console.error("Speech recognition error:", event.error);
+      setIsListening(false);
+      if (event.error !== 'no-speech') {
+         alert(`Voice search error: ${event.error}`);
+      }
+    };
+
+    recognition.start();
   };
 
   const onSubmit = (e: React.FormEvent) => {
@@ -111,53 +146,59 @@ const Head = () => {
           >
             <Search size={20} />
           </button>
-        </form>
 
-        {/* Voice Search Button */}
-        <IconButton className="ml-3 hidden sm:inline-flex bg-slate-100 hover:bg-slate-200 flex-shrink-0" aria-label="Search with your voice">
-          <Mic size={20} className="text-slate-700" />
-        </IconButton>
-
-        {/* Search Suggestions Dropdown */}
-        {showSuggestions && dropdownItems.length > 0 && (
-          <div className="absolute top-14 left-4 lg:left-12 right-4 lg:right-12 bg-white rounded-2xl shadow-xl border border-slate-100 py-3 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200 z-50">
-            <ul role="listbox" id="search-suggestions">
-              {dropdownItems.map((item, index) => (
-                <li
-                  key={`${showHistory ? 'history' : 'suggestion'}-${item}`}
-                  id={`suggestion-${index}`}
-                  role="option"
-                  aria-selected={selectedIndex === index}
-                  className={`flex items-center gap-3 px-5 py-2.5 cursor-pointer text-slate-700 font-medium transition-colors ${selectedIndex === index ? 'bg-slate-100 text-slate-900' : 'hover:bg-slate-50 group/item'}`}
-                >
-                  <div 
-                    className="flex items-center gap-3 flex-1 overflow-hidden"
-                    onClick={() => {
+          {/* Search Suggestions Dropdown (Moved inside form for perfect width alignment) */}
+          {showSuggestions && dropdownItems.length > 0 && (
+            <div className="absolute top-[calc(100%+8px)] left-0 right-0 bg-white rounded-2xl shadow-xl border border-slate-100 py-3 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200 z-50 text-left">
+              <ul role="listbox" id="search-suggestions">
+                {dropdownItems.map((item, index) => (
+                  <li
+                    key={`${showHistory ? 'history' : 'suggestion'}-${item}`}
+                    id={`suggestion-${index}`}
+                    role="option"
+                    aria-selected={selectedIndex === index}
+                    className={`flex items-center gap-3 px-5 py-2.5 cursor-pointer text-slate-700 font-medium transition-colors ${selectedIndex === index ? 'bg-slate-100 text-slate-900' : 'hover:bg-slate-50 group/item'}`}
+                    onMouseDown={(e) => {
+                      // Use onMouseDown instead of onClick so it fires before onBlur
+                      e.preventDefault();
                       setSearchQuery(item);
                       handleSearch(item);
                     }}
                   >
-                    <Search size={16} className="text-slate-400 flex-shrink-0" />
-                    <span className="truncate flex-1">{item}</span>
-                  </div>
-                  
-                  {showHistory && (
-                    <button
-                      type="button"
-                      className="text-blue-600 opacity-0 group-hover/item:opacity-100 transition-opacity text-sm hover:underline"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        removeSearch(item);
-                      }}
-                    >
-                      Remove
-                    </button>
-                  )}
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
+                    <div className="flex items-center gap-3 flex-1 overflow-hidden">
+                      <Search size={16} className="text-slate-400 flex-shrink-0" />
+                      <span className="truncate flex-1">{item}</span>
+                    </div>
+                    
+                    {showHistory && (
+                      <button
+                        type="button"
+                        className="text-blue-600 opacity-0 group-hover/item:opacity-100 transition-opacity text-sm hover:underline"
+                        onMouseDown={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          removeSearch(item);
+                        }}
+                      >
+                        Remove
+                      </button>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </form>
+
+        {/* Voice Search Button */}
+        <IconButton 
+          onClick={startVoiceSearch}
+          className={`ml-3 hidden sm:inline-flex flex-shrink-0 transition-all ${isListening ? 'bg-red-100 text-red-600 animate-pulse scale-105' : 'bg-slate-100 hover:bg-slate-200 text-slate-700'}`} 
+          aria-label="Search with your voice"
+        >
+          <Mic size={20} className={isListening ? 'text-red-600' : 'text-slate-700'} />
+        </IconButton>
+
       </div>
 
       {/* Right section: Profile & Actions */}

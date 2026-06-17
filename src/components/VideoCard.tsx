@@ -1,12 +1,16 @@
 import { CircleUser, MoreVertical } from "lucide-react";
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import { useChannelDetails } from "../shared/hooks/queries";
 import { VideoSummary } from "../shared/types/api";
 import IconButton from "../shared/ui/IconButton";
 
 const VideoCard = ({ info }: { info: VideoSummary }) => {
   const navigate = useNavigate();
   const { title, channelId, channelTitle, thumbnailUrl, viewCount, publishedAt, duration } = info;
+  
+  // Fetch actual channel profile picture
+  const { data: channelData } = useChannelDetails(channelId);
 
   // Format views
   const formatViews = (val?: string | number) => {
@@ -52,7 +56,21 @@ const VideoCard = ({ info }: { info: VideoSummary }) => {
       {/* Meta */}
       <div className="flex gap-3 pr-2">
         <div className="flex-shrink-0 mt-0.5">
-          <CircleUser size={36} strokeWidth={1} className="text-slate-400" />
+          {channelData?.thumbnailUrl ? (
+            <img 
+              src={channelData.thumbnailUrl} 
+              alt={channelTitle} 
+              className="w-9 h-9 rounded-full object-cover bg-slate-100 shadow-sm"
+              loading="lazy"
+            />
+          ) : (
+            <img 
+              src={`https://ui-avatars.com/api/?name=${encodeURIComponent(channelTitle)}&background=random&color=fff&rounded=true&size=36&font-size=0.4`} 
+              alt={channelTitle} 
+              className="w-9 h-9 rounded-full object-cover shadow-sm"
+              loading="lazy" 
+            />
+          )}
         </div>
         <div className="flex flex-col overflow-hidden w-full">
           <div className="flex flex-col gap-1 w-full pt-1 overflow-hidden">

@@ -1,6 +1,6 @@
-import React from 'react';
-import { History, Clock, ListVideo, Trash2 } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { History, Clock, ListVideo, Trash2, UserCircle } from 'lucide-react';
+import { Link, useLocation } from 'react-router-dom';
 import VideoCard from '../components/VideoCard';
 import { useLibrary } from '../shared/hooks/useLibrary';
 import { usePlaylists } from '../shared/hooks/usePlaylists';
@@ -10,12 +10,37 @@ const LibraryPage = () => {
   const { history, clearHistory } = useLibrary();
   const { savedVideos } = useWatchLater();
   const { playlists, deletePlaylist } = usePlaylists();
+  const location = useLocation();
+
+  useEffect(() => {
+    if (location.hash) {
+      const element = document.getElementById(location.hash.substring(1));
+      if (element) {
+        // slight delay to ensure render
+        setTimeout(() => {
+          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 100);
+      }
+    }
+  }, [location.hash]);
 
   return (
-    <div className="flex flex-col p-4 sm:p-6 w-full max-w-7xl mx-auto pb-20 gap-10">
+    <div className="flex flex-col p-4 sm:p-8 w-full max-w-7xl mx-auto pb-20 gap-12">
       
+      {/* Profile Header (YouTube "You" Page Style) */}
+      <div className="flex items-center gap-6 pb-6">
+        <UserCircle size={80} strokeWidth={1} className="text-slate-400" />
+        <div className="flex flex-col">
+          <h1 className="text-2xl sm:text-3xl font-bold text-slate-900">Alok</h1>
+          <div className="flex items-center gap-2 mt-2 text-sm text-slate-500 font-medium">
+            <span>@AlokRanjan</span>
+            <span>•</span>
+            <span className="hover:text-slate-900 cursor-pointer">View channel</span>
+          </div>
+        </div>
+      </div>
       {/* History Section */}
-      <section>
+      <section id="history" className="scroll-mt-24">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <History size={24} className="text-slate-700" />
@@ -33,7 +58,11 @@ const LibraryPage = () => {
         </div>
         
         {history.length === 0 ? (
-          <p className="text-slate-500 text-sm italic py-4">Your watch history is empty.</p>
+          <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
+            <History size={100} strokeWidth={0.5} className="text-slate-200 mb-6" />
+            <h3 className="text-2xl font-normal text-slate-900 mb-2">Keep track of what you watch</h3>
+            <p className="text-slate-600 mb-6">Your watch history will appear here.</p>
+          </div>
         ) : (
           <div className="flex overflow-x-auto gap-4 pb-4 hide-scrollbar snap-x">
             {history.slice(0, 15).map(video => (
@@ -46,7 +75,7 @@ const LibraryPage = () => {
       </section>
 
       {/* Watch Later Section */}
-      <section>
+      <section id="watch-later" className="scroll-mt-24">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <Clock size={24} className="text-slate-700" />
@@ -55,7 +84,11 @@ const LibraryPage = () => {
         </div>
         
         {savedVideos.length === 0 ? (
-          <p className="text-slate-500 text-sm italic py-4">You haven't saved any videos yet.</p>
+          <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
+            <Clock size={100} strokeWidth={0.5} className="text-slate-200 mb-6" />
+            <h3 className="text-2xl font-normal text-slate-900 mb-2">Save videos for later</h3>
+            <p className="text-slate-600 mb-6">You haven't saved any videos yet.</p>
+          </div>
         ) : (
           <div className="flex overflow-x-auto gap-4 pb-4 hide-scrollbar snap-x">
             {savedVideos.map(video => (
@@ -68,14 +101,18 @@ const LibraryPage = () => {
       </section>
 
       {/* Playlists Section */}
-      <section>
+      <section id="playlists" className="scroll-mt-24">
         <div className="flex items-center gap-2 mb-4">
           <ListVideo size={24} className="text-slate-700" />
           <h2 className="text-xl font-bold text-slate-900">Playlists</h2>
         </div>
         
         {playlists.length === 0 ? (
-          <p className="text-slate-500 text-sm italic py-4">You don't have any playlists.</p>
+          <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
+            <ListVideo size={100} strokeWidth={0.5} className="text-slate-200 mb-6" />
+            <h3 className="text-2xl font-normal text-slate-900 mb-2">Organize your favorite content</h3>
+            <p className="text-slate-600 mb-6">You don't have any playlists yet.</p>
+          </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {playlists.map(playlist => (
