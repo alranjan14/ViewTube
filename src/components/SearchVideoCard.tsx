@@ -1,12 +1,16 @@
 import React from 'react';
 import { CircleUser, MoreVertical } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useChannelDetails } from '../shared/hooks/queries';
 import { VideoSummary } from '../shared/types/api';
 import IconButton from '../shared/ui/IconButton';
 
 const SearchVideoCard = ({ info }: { info: VideoSummary }) => {
   const navigate = useNavigate();
   const { id, title, channelId, channelTitle, thumbnailUrl, viewCount, publishedAt, duration } = info;
+
+  // Fetch actual channel profile picture
+  const { data: channelData } = useChannelDetails(channelId);
 
   // Format views
   const formatViews = (val?: string | number) => {
@@ -59,13 +63,27 @@ const SearchVideoCard = ({ info }: { info: VideoSummary }) => {
         </div>
 
         <div 
-          className="flex items-center gap-2 group/channel w-fit"
+          className="flex items-center gap-3 group/channel w-fit mt-1"
           onClick={(e) => {
             e.stopPropagation();
             navigate('/channel/' + channelId);
           }}
         >
-          <CircleUser size={24} strokeWidth={1.5} className="text-slate-500 group-hover/channel:text-slate-800 transition-colors" />
+          {channelData?.thumbnailUrl ? (
+            <img 
+              src={channelData.thumbnailUrl} 
+              alt={channelTitle} 
+              className="w-8 h-8 rounded-full object-cover bg-slate-100 shadow-sm"
+              loading="lazy"
+            />
+          ) : (
+            <img 
+              src={`https://ui-avatars.com/api/?name=${encodeURIComponent(channelTitle)}&background=random&color=fff&rounded=true&size=32&font-size=0.4`} 
+              alt={channelTitle} 
+              className="w-8 h-8 rounded-full object-cover shadow-sm"
+              loading="lazy" 
+            />
+          )}
           <span className="text-sm text-slate-500 group-hover/channel:text-slate-800 transition-colors font-medium">
             {channelTitle}
           </span>
