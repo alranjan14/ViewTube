@@ -7,7 +7,7 @@ export const handlers = [
         {
           id: 'mock-1',
           snippet: {
-            title: 'Mock Video',
+            title: 'Mock-Video',
             channelTitle: 'Mock Channel',
             thumbnails: { medium: { url: 'https://via.placeholder.com/320x180' } },
             publishedAt: new Date().toISOString(),
