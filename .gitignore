@@ -21,6 +21,7 @@ yarn-error.log*
 
 # Local planning notes
 Todo.md
+REVIEW.md
 dist/
 
 playwright-report/
