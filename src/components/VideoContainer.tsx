@@ -1,19 +1,31 @@
-import { AlertCircle } from "lucide-react";
-import React from "react";
-import { Link } from "react-router-dom";
-import { useTrendingVideos } from "../shared/hooks/queries";
-import { useIntersectionObserver } from "../shared/hooks/useIntersectionObserver";
-import Skeleton from "../shared/ui/Skeleton";
-import VideoCard, { AdVideoCard } from "./VideoCard";
+import { AlertCircle } from 'lucide-react';
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { useTrendingVideos } from '../shared/hooks/queries';
+import { useIntersectionObserver } from '../shared/hooks/useIntersectionObserver';
+import { QueryError } from '../shared/ui/QueryError';
+import Skeleton from '../shared/ui/Skeleton';
+import VideoCard, { AdVideoCard } from './VideoCard';
 
 const VideoContainer = ({ activeCategory }: { activeCategory?: string }) => {
-  const { data, isLoading, error, fetchNextPage, hasNextPage, isFetchingNextPage } = useTrendingVideos('IN', 50, activeCategory);
+  const {
+    data,
+    isLoading,
+    error,
+    refetch,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useTrendingVideos('IN', 50, activeCategory);
 
-  const loadMoreRef = useIntersectionObserver(() => {
-    if (hasNextPage && !isFetchingNextPage) {
-      fetchNextPage();
-    }
-  }, { enabled: hasNextPage && !isFetchingNextPage });
+  const loadMoreRef = useIntersectionObserver(
+    () => {
+      if (hasNextPage && !isFetchingNextPage) {
+        void fetchNextPage();
+      }
+    },
+    { enabled: hasNextPage && !isFetchingNextPage }
+  );
 
   if (isLoading) {
     return (
@@ -35,32 +47,49 @@ const VideoContainer = ({ activeCategory }: { activeCategory?: string }) => {
   }
 
   if (error) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[calc(100vh-180px)] px-4 m-4 sm:m-8 bg-slate-50 border border-slate-200 border-dashed rounded-3xl text-center">
-        <div className="w-20 h-20 bg-red-50 text-red-500 flex items-center justify-center rounded-full mb-6 shadow-sm border border-red-100">
-          <AlertCircle size={40} strokeWidth={1.5} />
+    // An empty category comes back as a "not found" error rather than a true failure.
+    if (error.message.includes('entity was not found')) {
+      return (
+        <div className="flex flex-col items-center justify-center min-h-[calc(100vh-180px)] px-4 m-4 sm:m-8 bg-slate-50 border border-slate-200 border-dashed rounded-3xl text-center">
+          <div className="w-20 h-20 bg-red-50 text-red-500 flex items-center justify-center rounded-full mb-6 shadow-sm border border-red-100">
+            <AlertCircle size={40} strokeWidth={1.5} />
+          </div>
+          <h3 className="text-xl sm:text-2xl font-bold text-slate-900 mb-3">
+            No Trending Videos Found
+          </h3>
+          <p className="text-slate-500 max-w-md leading-relaxed">
+            YouTube doesn&apos;t currently have enough trending data for this
+            category in your region. Please try a different category!
+          </p>
         </div>
-        <h3 className="text-xl sm:text-2xl font-bold text-slate-900 mb-3">No Trending Videos Found</h3>
-        <p className="text-slate-500 max-w-md leading-relaxed">
-          {error.message.includes("entity was not found") 
-            ? "YouTube doesn't currently have enough trending data for this specific category in your region. Please try exploring a different category!" 
-            : error.message}
-        </p>
-      </div>
+      );
+    }
+    return (
+      <QueryError
+        error={error}
+        title="Couldn't load trending videos"
+        onRetry={() => void refetch()}
+      />
     );
   }
 
   return (
     <div className="flex flex-col w-full pb-20">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-x-4 gap-y-10 p-4 lg:p-6">
-        {data?.pages[0]?.items[0] && <AdVideoCard info={data.pages[0].items[0]} />}
-        
+        {data?.pages[0]?.items[0] && (
+          <AdVideoCard info={data.pages[0].items[0]} />
+        )}
+
         {data?.pages.map((page, i) => (
           <React.Fragment key={i}>
             {page.items.map((video, index) => {
               if (i === 0 && index === 0) return null;
               return (
-                <Link key={video.id} to={"/watch?v=" + video.id} className="outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-xl">
+                <Link
+                  key={video.id}
+                  to={'/watch?v=' + video.id}
+                  className="outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-xl"
+                >
                   <VideoCard info={video} />
                 </Link>
               );
@@ -68,7 +97,7 @@ const VideoContainer = ({ activeCategory }: { activeCategory?: string }) => {
           </React.Fragment>
         ))}
       </div>
-      
+
       {hasNextPage && (
         <div ref={loadMoreRef} className="flex justify-center my-8 w-full">
           {isFetchingNextPage ? (

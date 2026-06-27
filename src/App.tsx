@@ -5,6 +5,7 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import Body from './components/Body';
 import { config } from './shared/config/env';
 import { ROUTES } from './shared/routes';
+import { ToastProvider } from './shared/ui/Toast';
 
 const ChannelPage = lazy(() => import('./pages/ChannelPage'));
 const HomePage = lazy(() => import('./pages/HomePage'));
@@ -74,7 +75,9 @@ function App() {
 
   return (
     <GoogleOAuthProvider clientId={googleClientId}>
-      <RouterProvider router={appRouter} />
+      <ToastProvider>
+        <RouterProvider router={appRouter} />
+      </ToastProvider>
     </GoogleOAuthProvider>
   );
 }

@@ -5,6 +5,7 @@ import { render, RenderOptions } from '@testing-library/react';
 import React, { ReactElement } from 'react';
 import { Provider } from 'react-redux';
 import { BrowserRouter } from 'react-router-dom';
+import { ToastProvider } from '../shared/ui/Toast';
 import appReducer from '../utils/appSlice';
 import authReducer from '../utils/authSlice';
 import chatReducer from '../utils/chatSlice';
@@ -35,7 +36,9 @@ export const renderWithProviders = (
     <GoogleOAuthProvider clientId="test-client-id">
       <Provider store={store}>
         <QueryClientProvider client={testQueryClient}>
-          <BrowserRouter>{children}</BrowserRouter>
+          <BrowserRouter>
+            <ToastProvider>{children}</ToastProvider>
+          </BrowserRouter>
         </QueryClientProvider>
       </Provider>
     </GoogleOAuthProvider>

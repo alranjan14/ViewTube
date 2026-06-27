@@ -1,4 +1,5 @@
 import { MoreVertical } from 'lucide-react';
+import { memo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useChannelDetails } from '../shared/hooks/queries';
 import { VideoSummary } from '../shared/types/api';
@@ -86,9 +87,18 @@ const VideoCard = ({ info }: { info: VideoSummary }) => {
               {title}
             </h3>
             <div
+              role="button"
+              tabIndex={0}
               onClick={(e) => {
                 e.stopPropagation();
                 navigate('/channel/' + channelId);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  navigate('/channel/' + channelId);
+                }
               }}
               className="text-sm text-slate-500 hover:text-slate-800 transition-colors mt-1 w-fit z-10 relative cursor-pointer"
             >
@@ -126,4 +136,4 @@ export const AdVideoCard = ({ info }: { info: VideoSummary }) => {
   );
 };
 
-export default VideoCard;
+export default memo(VideoCard);

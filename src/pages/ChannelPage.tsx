@@ -28,7 +28,7 @@ const ChannelPage = () => {
   const loadMoreRef = useIntersectionObserver(
     () => {
       if (hasNextPage && !isFetchingNextPage) {
-        fetchNextPage();
+        void fetchNextPage();
       }
     },
     { enabled: hasNextPage && !isFetchingNextPage }

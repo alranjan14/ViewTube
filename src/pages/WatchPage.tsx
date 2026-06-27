@@ -18,7 +18,9 @@ import { useLibrary } from '../shared/hooks/useLibrary';
 import { usePlaylists } from '../shared/hooks/usePlaylists';
 import { useWatchLater } from '../shared/hooks/useWatchLater';
 import Button from '../shared/ui/Button';
+import { Modal } from '../shared/ui/Modal';
 import Skeleton from '../shared/ui/Skeleton';
+import { useToast } from '../shared/ui/Toast';
 import { closeMenu } from '../utils/appSlice';
 
 const YOUTUBE_ID_PATTERN = /^[A-Za-z0-9_-]{11}$/;
@@ -38,14 +40,13 @@ const WatchPage = () => {
   const { addToHistory } = useLibrary();
   const { isSaved, toggleSave } = useWatchLater();
   const { playlists, createPlaylist, addVideoToPlaylist } = usePlaylists();
+  const toast = useToast();
+  const [playlistModalOpen, setPlaylistModalOpen] = useState(false);
+  const [playlistName, setPlaylistName] = useState('Favorites');
 
-  const handleAddToPlaylist = () => {
-    if (!videoDetails) return;
-    const name = window.prompt(
-      "Enter new playlist name or type 'Favorites':",
-      'Favorites'
-    );
-    if (!name) return;
+  const handleConfirmPlaylist = () => {
+    const name = playlistName.trim();
+    if (!videoDetails || !name) return;
 
     let playlist = playlists.find(
       (p) => p.title.toLowerCase() === name.toLowerCase()
@@ -65,7 +66,8 @@ const WatchPage = () => {
       publishedAt: videoDetails.publishedAt,
       duration: videoDetails.duration,
     });
-    alert(`Added to playlist: ${playlist.title}`);
+    toast.success(`Added to "${playlist.title}"`);
+    setPlaylistModalOpen(false);
   };
 
   useEffect(() => {
@@ -201,7 +203,7 @@ const WatchPage = () => {
                 </button>
 
                 <button
-                  onClick={handleAddToPlaylist}
+                  onClick={() => setPlaylistModalOpen(true)}
                   className="flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 transition-colors rounded-full font-medium text-sm"
                 >
                   <Plus size={18} />
@@ -251,6 +253,49 @@ const WatchPage = () => {
           <RelatedVideos title={videoDetails?.title} />
         )}
       </div>
+
+      <Modal
+        open={playlistModalOpen}
+        onClose={() => setPlaylistModalOpen(false)}
+        title="Save to playlist"
+      >
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleConfirmPlaylist();
+          }}
+        >
+          <label
+            htmlFor="playlist-name"
+            className="mb-2 block text-sm font-medium text-slate-700"
+          >
+            Playlist name
+          </label>
+          <input
+            id="playlist-name"
+            value={playlistName}
+            onChange={(e) => setPlaylistName(e.target.value)}
+            placeholder="e.g. Favorites"
+            className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+          />
+          <div className="mt-6 flex justify-end gap-3">
+            <button
+              type="button"
+              onClick={() => setPlaylistModalOpen(false)}
+              className="rounded-full px-4 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-100"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={!playlistName.trim()}
+              className="rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
+            >
+              Add to playlist
+            </button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 };

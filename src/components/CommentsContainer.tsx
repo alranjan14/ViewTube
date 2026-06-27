@@ -1,26 +1,36 @@
-import { ThumbsUp, ThumbsDown, MessageSquare } from "lucide-react";
-import React from "react";
-import { useVideoComments } from "../shared/hooks/queries";
-import { CommentData } from "../shared/types/api";
-import Skeleton from "../shared/ui/Skeleton";
+import { ThumbsUp, ThumbsDown, MessageSquare } from 'lucide-react';
+import React from 'react';
+import { useVideoComments } from '../shared/hooks/queries';
+import { CommentData } from '../shared/types/api';
+import Skeleton from '../shared/ui/Skeleton';
 
 const Comment = ({ data }: { data: CommentData }) => {
   const { name, text, authorProfileImageUrl, publishedAt } = data;
   return (
     <div className="flex gap-4 p-3 hover:bg-slate-50 transition-colors rounded-xl">
       {authorProfileImageUrl ? (
-        <img src={authorProfileImageUrl} alt={name} className="h-10 w-10 mt-1 rounded-full shadow-sm border border-slate-100 object-cover" />
+        <img
+          src={authorProfileImageUrl}
+          alt={name}
+          className="h-10 w-10 mt-1 rounded-full shadow-sm border border-slate-100 object-cover"
+        />
       ) : (
         <div className="h-10 w-10 mt-1 bg-slate-200 rounded-full flex items-center justify-center flex-shrink-0">
-          <span className="text-slate-500 font-bold text-lg">{name.charAt(0).toUpperCase()}</span>
+          <span className="text-slate-500 font-bold text-lg">
+            {name.charAt(0).toUpperCase()}
+          </span>
         </div>
       )}
       <div className="flex flex-col">
         <div className="flex items-center gap-2">
           <span className="font-bold text-sm text-slate-900">{name}</span>
-          <span className="text-xs text-slate-500">{new Date(publishedAt).toLocaleDateString()}</span>
+          <span className="text-xs text-slate-500">
+            {new Date(publishedAt).toLocaleDateString()}
+          </span>
         </div>
-        <p className="text-slate-800 text-sm mt-1 whitespace-pre-wrap">{text}</p>
+        <p className="text-slate-800 text-sm mt-1 whitespace-pre-wrap">
+          {text}
+        </p>
         <div className="flex items-center gap-4 mt-2">
           <button className="flex items-center gap-1 text-slate-500 hover:text-slate-900 transition-colors">
             <ThumbsUp size={14} />
@@ -55,7 +65,14 @@ const CommentsList = ({ comments }: { comments: CommentData[] }) => {
 };
 
 const CommentsContainer = ({ videoId }: { videoId: string }) => {
-  const { data, isLoading, error, fetchNextPage, hasNextPage, isFetchingNextPage } = useVideoComments(videoId);
+  const {
+    data,
+    isLoading,
+    error,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useVideoComments(videoId);
 
   if (isLoading) {
     return (
@@ -75,7 +92,11 @@ const CommentsContainer = ({ videoId }: { videoId: string }) => {
   }
 
   if (error) {
-    return <div className="mt-6 p-4 bg-red-50 text-red-700 rounded-xl text-sm border border-red-100">Failed to load comments: {error.message}</div>;
+    return (
+      <div className="mt-6 p-4 bg-red-50 text-red-700 rounded-xl text-sm border border-red-100">
+        Failed to load comments: {error.message}
+      </div>
+    );
   }
 
   return (
@@ -84,7 +105,7 @@ const CommentsContainer = ({ videoId }: { videoId: string }) => {
         <h2 className="text-xl font-bold">Comments</h2>
         <MessageSquare size={20} className="text-slate-400" />
       </div>
-      
+
       {data?.pages.map((page, i) => (
         <React.Fragment key={i}>
           <CommentsList comments={page.items} />
@@ -93,8 +114,8 @@ const CommentsContainer = ({ videoId }: { videoId: string }) => {
 
       {hasNextPage && (
         <div className="flex justify-center mt-6">
-          <button 
-            onClick={() => fetchNextPage()} 
+          <button
+            onClick={() => void fetchNextPage()}
             disabled={isFetchingNextPage}
             className="px-6 py-2 bg-slate-100 hover:bg-slate-200 text-slate-900 font-semibold rounded-full transition-colors disabled:opacity-50 text-sm"
           >

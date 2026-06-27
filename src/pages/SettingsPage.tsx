@@ -10,21 +10,18 @@ import { config } from '../shared/config/env';
 import { STORAGE_KEYS } from '../shared/config/storage';
 import { useLocalStorage } from '../shared/hooks/useLocalStorage';
 import Button from '../shared/ui/Button';
+import { ConfirmDialog } from '../shared/ui/Modal';
 
 const SettingsPage = () => {
   const [cleared, setCleared] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   const handleClearData = () => {
-    if (
-      window.confirm(
-        'Are you sure you want to delete all local history and preferences? This cannot be undone.'
-      )
-    ) {
-      localStorage.clear();
-      setCleared(true);
-      setTimeout(() => setCleared(false), 3000);
-      window.location.reload();
-    }
+    localStorage.clear();
+    setConfirmOpen(false);
+    setCleared(true);
+    setTimeout(() => setCleared(false), 3000);
+    window.location.reload();
   };
 
   const [region, setRegion] = useLocalStorage(STORAGE_KEYS.region, 'IN');
@@ -230,7 +227,7 @@ const SettingsPage = () => {
             <div className="flex-shrink-0">
               <Button
                 variant="primary"
-                onClick={handleClearData}
+                onClick={() => setConfirmOpen(true)}
                 className="bg-red-600 hover:bg-red-700 flex items-center gap-2"
               >
                 <Trash2 size={18} />
@@ -245,6 +242,17 @@ const SettingsPage = () => {
           )}
         </section>
       </div>
+
+      <ConfirmDialog
+        open={confirmOpen}
+        title="Clear all local data?"
+        message="This permanently deletes your watch history, watch later, playlists, and preferences from this browser. This cannot be undone."
+        confirmLabel="Delete everything"
+        cancelLabel="Cancel"
+        destructive
+        onConfirm={handleClearData}
+        onCancel={() => setConfirmOpen(false)}
+      />
     </div>
   );
 };

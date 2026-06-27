@@ -1,4 +1,5 @@
 import { MoreVertical } from 'lucide-react';
+import { memo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useChannelDetails } from '../shared/hooks/queries';
 import { VideoSummary } from '../shared/types/api';
@@ -75,10 +76,19 @@ const SearchVideoCard = ({ info }: { info: VideoSummary }) => {
         </div>
 
         <div
+          role="button"
+          tabIndex={0}
           className="flex items-center gap-3 group/channel w-fit mt-1"
           onClick={(e) => {
             e.stopPropagation();
             navigate('/channel/' + channelId);
+          }}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              e.stopPropagation();
+              navigate('/channel/' + channelId);
+            }
           }}
         >
           {channelData?.thumbnailUrl ? (
@@ -107,4 +117,4 @@ const SearchVideoCard = ({ info }: { info: VideoSummary }) => {
   );
 };
 
-export default SearchVideoCard;
+export default memo(SearchVideoCard);

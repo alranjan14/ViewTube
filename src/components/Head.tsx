@@ -14,8 +14,10 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useSearchSuggestions } from '../shared/hooks/queries';
 import { useDebounce } from '../shared/hooks/useDebounce';
 import { useSearchHistory } from '../shared/hooks/useSearchHistory';
+import { logger } from '../shared/lib/logger';
 import { ROUTES } from '../shared/routes';
 import IconButton from '../shared/ui/IconButton';
+import { useToast } from '../shared/ui/Toast';
 import { toggleMenu } from '../utils/appSlice';
 import { login, logout } from '../utils/authSlice';
 import { RootState } from '../utils/store';
@@ -29,34 +31,47 @@ const Head = () => {
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const toast = useToast();
 
   const { user, isAuthenticated } = useSelector(
     (state: RootState) => state.auth
   );
 
   const handleGoogleLogin = useGoogleLogin({
-    onSuccess: async (tokenResponse) => {
-      try {
-        const res = await fetch(
-          'https://www.googleapis.com/oauth2/v3/userinfo',
-          {
-            headers: { Authorization: `Bearer ${tokenResponse.access_token}` },
+    onSuccess: (tokenResponse) => {
+      void (async () => {
+        try {
+          const res = await fetch(
+            'https://www.googleapis.com/oauth2/v3/userinfo',
+            {
+              headers: {
+                Authorization: `Bearer ${tokenResponse.access_token}`,
+              },
+            }
+          );
+          const userInfo = (await res.json()) as {
+            name?: string;
+            email?: string;
+            picture?: string;
+          };
+          if (userInfo.name && userInfo.email && userInfo.picture) {
+            dispatch(
+              login({
+                name: userInfo.name,
+                email: userInfo.email,
+                picture: userInfo.picture,
+              })
+            );
+          } else {
+            toast.error('Login failed. Please try again.');
           }
-        );
-        const userInfo = await res.json();
-        dispatch(
-          login({
-            name: userInfo.name,
-            email: userInfo.email,
-            picture: userInfo.picture,
-          })
-        );
-      } catch (error) {
-        console.error('Failed to fetch user info', error);
-        alert('Login failed. Please check your console.');
-      }
+        } catch (error) {
+          logger.error('Failed to fetch user info', { error });
+          toast.error('Login failed. Please try again.');
+        }
+      })();
     },
-    onError: (error) => console.error('Login Failed', error),
+    onError: (error) => logger.error('Login failed', { error }),
   });
 
   const debouncedSearchQuery = useDebounce(searchQuery, 300);
@@ -97,7 +112,7 @@ const Head = () => {
     const SpeechRecognition = w.SpeechRecognition || w.webkitSpeechRecognition;
 
     if (!SpeechRecognition) {
-      alert(
+      toast.error(
         'Your browser does not support voice search. Try Chrome or Safari.'
       );
       return;
@@ -119,10 +134,10 @@ const Head = () => {
     };
 
     recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
-      console.error('Speech recognition error:', event.error);
+      logger.error('Speech recognition error', { error: event.error });
       setIsListening(false);
       if (event.error !== 'no-speech') {
-        alert(`Voice search error: ${event.error}`);
+        toast.error(`Voice search error: ${event.error}`);
       }
     };
 

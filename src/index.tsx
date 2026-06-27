@@ -32,8 +32,8 @@ const root = ReactDOM.createRoot(
 );
 
 if (import.meta.env.DEV) {
-  import('@axe-core/react').then((axe) => {
-    axe.default(React, ReactDOM, 1000);
+  void import('@axe-core/react').then((axe) => {
+    void axe.default(React, ReactDOM, 1000);
   });
 }
 
