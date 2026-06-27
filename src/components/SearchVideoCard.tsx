@@ -1,5 +1,4 @@
 import { MoreVertical } from 'lucide-react';
-import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useChannelDetails } from '../shared/hooks/queries';
 import { VideoSummary } from '../shared/types/api';
@@ -7,16 +6,24 @@ import IconButton from '../shared/ui/IconButton';
 
 const SearchVideoCard = ({ info }: { info: VideoSummary }) => {
   const navigate = useNavigate();
-  const { title, channelId, channelTitle, thumbnailUrl, viewCount, publishedAt, duration } = info;
+  const {
+    title,
+    channelId,
+    channelTitle,
+    thumbnailUrl,
+    viewCount,
+    publishedAt,
+    duration,
+  } = info;
 
   // Fetch actual channel profile picture
   const { data: channelData } = useChannelDetails(channelId);
 
   // Format views
   const formatViews = (val?: string | number) => {
-    if (!val) return "";
-    const views = typeof val === "string" ? parseInt(val, 10) : val;
-    if (isNaN(views)) return "";
+    if (!val) return '';
+    const views = typeof val === 'string' ? parseInt(val, 10) : val;
+    if (isNaN(views)) return '';
     if (views >= 1000000) return `${(views / 1000000).toFixed(1)}M views`;
     if (views >= 1000) return `${(views / 1000).toFixed(1)}K views`;
     return `${views} views`;
@@ -26,14 +33,15 @@ const SearchVideoCard = ({ info }: { info: VideoSummary }) => {
     <div className="flex flex-col sm:flex-row gap-4 w-full group p-2 hover:bg-slate-50/80 rounded-2xl transition-colors cursor-pointer">
       {/* Thumbnail */}
       <div className="relative flex-shrink-0 w-full sm:w-[360px] aspect-video overflow-hidden rounded-xl bg-slate-100">
-        <img 
-          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" 
+        <img
+          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
           src={info.thumbnails?.medium || thumbnailUrl}
-          alt={title} 
+          alt={title}
           loading="lazy"
           onError={(e) => {
             const target = e.target as HTMLImageElement;
-            target.src = "https://via.placeholder.com/360x202.png?text=No+Thumbnail";
+            target.src =
+              'https://via.placeholder.com/360x202.png?text=No+Thumbnail';
           }}
         />
         {duration && (
@@ -58,11 +66,15 @@ const SearchVideoCard = ({ info }: { info: VideoSummary }) => {
 
         <div className="flex items-center text-xs sm:text-sm text-slate-500 mt-1 mb-3">
           {viewCount && <span>{formatViews(viewCount)}</span>}
-          {viewCount && publishedAt && <span className="mx-1.5 text-[10px]">•</span>}
-          {publishedAt && <span>{new Date(publishedAt).toLocaleDateString()}</span>}
+          {viewCount && publishedAt && (
+            <span className="mx-1.5 text-[10px]">•</span>
+          )}
+          {publishedAt && (
+            <span>{new Date(publishedAt).toLocaleDateString()}</span>
+          )}
         </div>
 
-        <div 
+        <div
           className="flex items-center gap-3 group/channel w-fit mt-1"
           onClick={(e) => {
             e.stopPropagation();
@@ -70,18 +82,18 @@ const SearchVideoCard = ({ info }: { info: VideoSummary }) => {
           }}
         >
           {channelData?.thumbnailUrl ? (
-            <img 
-              src={channelData.thumbnailUrl} 
-              alt={channelTitle} 
+            <img
+              src={channelData.thumbnailUrl}
+              alt={channelTitle}
               className="w-8 h-8 rounded-full object-cover bg-slate-100 shadow-sm"
               loading="lazy"
             />
           ) : (
-            <img 
-              src={`https://ui-avatars.com/api/?name=${encodeURIComponent(channelTitle)}&background=random&color=fff&rounded=true&size=32&font-size=0.4`} 
-              alt={channelTitle} 
+            <img
+              src={`https://ui-avatars.com/api/?name=${encodeURIComponent(channelTitle)}&background=random&color=fff&rounded=true&size=32&font-size=0.4`}
+              alt={channelTitle}
               className="w-8 h-8 rounded-full object-cover shadow-sm"
-              loading="lazy" 
+              loading="lazy"
             />
           )}
           <span className="text-sm text-slate-500 group-hover/channel:text-slate-800 transition-colors font-medium">

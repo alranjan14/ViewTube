@@ -1,5 +1,4 @@
-import React from "react";
-import UserAvatar from "./UserAvatar";
+import UserAvatar from './UserAvatar';
 
 const ChatMessage = ({ name, message }: { name: string; message: string }) => {
   return (

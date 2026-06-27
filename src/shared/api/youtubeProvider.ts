@@ -1,58 +1,100 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { ChannelDetails, CommentData, PaginatedResponse, VideoDetails, VideoSummary, SearchFilters } from '../types/api';
+import { config } from '../config/env';
+import {
+  ChannelDetails,
+  CommentData,
+  PaginatedResponse,
+  VideoDetails,
+  VideoSummary,
+} from '../types/api';
 import { httpClient } from './httpClient';
-import { IVideoProvider } from './videoProvider';
+import {
+  ChannelDetailsParams,
+  ChannelVideosParams,
+  IVideoProvider,
+  SearchSuggestionsParams,
+  SearchVideosParams,
+  TrendingVideosParams,
+  VideoCommentsParams,
+  VideoDetailsParams,
+} from './videoProvider';
+import {
+  mapChannelDetails,
+  mapCommentThread,
+  mapSearchResult,
+  mapVideoDetails,
+  mapVideoSummary,
+} from './youtube.mappers';
+import {
+  ChannelListResponseSchema,
+  CommentThreadListResponseSchema,
+  SearchListResponseSchema,
+  VideoListResponseSchema,
+} from './youtube.schemas';
 
 const YOUTUBE_API_BASE_URL = 'https://youtube.googleapis.com/youtube/v3';
-const YOUTUBE_SUGGESTIONS_API_URL = 'https://suggestqueries.google.com/complete/search';
-
-const YOUTUBE_API_KEY = import.meta.env.VITE_YOUTUBE_API_KEY || '';
+const YOUTUBE_SUGGESTIONS_API_URL =
+  'https://suggestqueries.google.com/complete/search';
 
 export const youtubeProvider: IVideoProvider = {
-  async getTrendingVideos(regionCode = 'IN', maxResults = 50, pageToken?: string, videoCategoryId?: string, signal?: AbortSignal): Promise<PaginatedResponse<VideoSummary>> {
+  async getTrendingVideos({
+    regionCode = config.youtube.defaultRegion,
+    maxResults = 50,
+    pageToken,
+    videoCategoryId,
+    signal,
+  }: TrendingVideosParams = {}): Promise<PaginatedResponse<VideoSummary>> {
     const params = new URLSearchParams({
       part: 'snippet,contentDetails,statistics',
       chart: 'mostPopular',
       maxResults: String(maxResults),
       regionCode,
-      key: YOUTUBE_API_KEY,
+      key: config.youtube.apiKey,
     });
     if (pageToken) params.append('pageToken', pageToken);
     if (videoCategoryId) params.append('videoCategoryId', videoCategoryId);
 
-    const data = await httpClient<any>(`${YOUTUBE_API_BASE_URL}/videos?${params.toString()}`, { signal });
-
+    const raw = await httpClient<unknown>(
+      `${YOUTUBE_API_BASE_URL}/videos?${params.toString()}`,
+      { signal }
+    );
+    const data = VideoListResponseSchema.parse(raw);
     return {
-      items: (data.items || []).map((item: any) => ({
-        id: item.id,
-        title: item.snippet.title,
-        channelId: item.snippet.channelId,
-        channelTitle: item.snippet.channelTitle,
-        thumbnailUrl: item.snippet.thumbnails?.medium?.url || '',
-        viewCount: item.statistics?.viewCount,
-        publishedAt: item.snippet.publishedAt,
-        duration: item.contentDetails?.duration,
-      })),
+      items: data.items.map(mapVideoSummary),
       nextPageToken: data.nextPageToken,
     };
   },
 
-  async getSearchSuggestions(query: string, signal?: AbortSignal): Promise<string[]> {
-    if (!query.trim()) return [];
+  async getSearchSuggestions({
+    query,
+    signal,
+  }: SearchSuggestionsParams): Promise<string[]> {
+    const trimmed = query.trim();
+    if (!trimmed) return [];
 
     const params = new URLSearchParams({
       client: 'youtube',
       ds: 'yt',
-      q: query.trim(),
+      q: trimmed,
     });
 
-    return new Promise((resolve, reject) => {
-      const callbackName = 'jsonp_callback_' + Math.round(100000 * Math.random());
+    return new Promise<string[]>((resolve, reject) => {
+      const callbackName = `jsonp_callback_${Math.round(100000 * Math.random())}`;
       params.append('jsonp', callbackName);
-      
+
       const script = document.createElement('script');
       script.src = `${YOUTUBE_SUGGESTIONS_API_URL}?${params.toString()}`;
-      
+
+      // The JSONP global is keyed by a random callback name; type it without `any`.
+      const w = window as unknown as Record<
+        string,
+        ((data: unknown) => void) | undefined
+      >;
+
+      const cleanup = () => {
+        delete w[callbackName];
+        if (script.parentNode) script.parentNode.removeChild(script);
+      };
+
       if (signal) {
         signal.addEventListener('abort', () => {
           cleanup();
@@ -60,14 +102,18 @@ export const youtubeProvider: IVideoProvider = {
         });
       }
 
-      const cleanup = () => {
-        delete (window as any)[callbackName];
-        if (script.parentNode) script.parentNode.removeChild(script);
-      };
-
-      (window as any)[callbackName] = (data: any) => {
+      w[callbackName] = (data: unknown) => {
         cleanup();
-        resolve(Array.isArray(data?.[1]) ? data[1].map((item: any) => item[0]) : []);
+        // Response shape: [query, [[suggestion, ...meta], ...], ...]
+        const entries =
+          Array.isArray(data) && Array.isArray(data[1])
+            ? (data[1] as unknown[])
+            : [];
+        resolve(
+          entries
+            .map((entry) => (Array.isArray(entry) ? String(entry[0]) : ''))
+            .filter(Boolean)
+        );
       };
 
       script.onerror = () => {
@@ -79,145 +125,124 @@ export const youtubeProvider: IVideoProvider = {
     });
   },
 
-  async getSearchVideos(query: string, maxResults = 25, pageToken?: string, filters?: SearchFilters, signal?: AbortSignal): Promise<PaginatedResponse<VideoSummary>> {
+  async getSearchVideos({
+    query,
+    maxResults = 25,
+    pageToken,
+    filters,
+    signal,
+  }: SearchVideosParams): Promise<PaginatedResponse<VideoSummary>> {
     const params = new URLSearchParams({
       part: 'snippet',
       q: query,
       maxResults: String(maxResults),
       type: 'video',
-      key: YOUTUBE_API_KEY,
+      key: config.youtube.apiKey,
     });
     if (pageToken) params.append('pageToken', pageToken);
     if (filters?.order) params.append('order', filters.order);
-    if (filters?.publishedAfter) params.append('publishedAfter', filters.publishedAfter);
+    if (filters?.publishedAfter)
+      params.append('publishedAfter', filters.publishedAfter);
 
-    const data = await httpClient<any>(`${YOUTUBE_API_BASE_URL}/search?${params.toString()}`, { signal });
-
+    const raw = await httpClient<unknown>(
+      `${YOUTUBE_API_BASE_URL}/search?${params.toString()}`,
+      { signal }
+    );
+    const data = SearchListResponseSchema.parse(raw);
     return {
-      items: (data.items || []).map((item: any) => ({
-        id: item.id.videoId,
-        title: item.snippet.title,
-        channelId: item.snippet.channelId,
-        channelTitle: item.snippet.channelTitle,
-        thumbnailUrl: item.snippet.thumbnails?.medium?.url || '',
-        publishedAt: item.snippet.publishedAt,
-      })),
+      items: data.items.map(mapSearchResult),
       nextPageToken: data.nextPageToken,
     };
   },
 
-  async getChannelVideos(channelId: string, maxResults = 25, pageToken?: string, signal?: AbortSignal): Promise<PaginatedResponse<VideoSummary>> {
+  async getChannelVideos({
+    channelId,
+    maxResults = 25,
+    pageToken,
+    signal,
+  }: ChannelVideosParams): Promise<PaginatedResponse<VideoSummary>> {
     const params = new URLSearchParams({
       part: 'snippet',
       channelId,
       maxResults: String(maxResults),
       order: 'date',
       type: 'video',
-      key: YOUTUBE_API_KEY,
+      key: config.youtube.apiKey,
     });
     if (pageToken) params.append('pageToken', pageToken);
 
-    const data = await httpClient<any>(`${YOUTUBE_API_BASE_URL}/search?${params.toString()}`, { signal });
-
+    const raw = await httpClient<unknown>(
+      `${YOUTUBE_API_BASE_URL}/search?${params.toString()}`,
+      { signal }
+    );
+    const data = SearchListResponseSchema.parse(raw);
     return {
-      items: (data.items || []).map((item: any) => ({
-        id: item.id.videoId,
-        title: item.snippet.title,
-        channelId: item.snippet.channelId,
-        channelTitle: item.snippet.channelTitle,
-        thumbnailUrl: item.snippet.thumbnails?.medium?.url || '',
-        publishedAt: item.snippet.publishedAt,
-      })),
+      items: data.items.map(mapSearchResult),
       nextPageToken: data.nextPageToken,
     };
   },
 
-  async getVideoDetails(videoId: string, signal?: AbortSignal): Promise<VideoDetails> {
+  async getVideoDetails({
+    videoId,
+    signal,
+  }: VideoDetailsParams): Promise<VideoDetails> {
     const params = new URLSearchParams({
       part: 'snippet,contentDetails,statistics,liveStreamingDetails',
       id: videoId,
-      key: YOUTUBE_API_KEY,
+      key: config.youtube.apiKey,
     });
 
-    const data = await httpClient<any>(`${YOUTUBE_API_BASE_URL}/videos?${params.toString()}`, { signal });
-    if (!data.items?.length) throw new Error('Video not found');
-
+    const raw = await httpClient<unknown>(
+      `${YOUTUBE_API_BASE_URL}/videos?${params.toString()}`,
+      { signal }
+    );
+    const data = VideoListResponseSchema.parse(raw);
     const item = data.items[0];
-    return {
-      id: item.id,
-      title: item.snippet.title,
-      channelId: item.snippet.channelId,
-      channelTitle: item.snippet.channelTitle,
-      thumbnailUrl: item.snippet.thumbnails?.medium?.url || '',
-      viewCount: item.statistics?.viewCount,
-      publishedAt: item.snippet.publishedAt,
-      duration: item.contentDetails?.duration,
-      description: item.snippet.description,
-      likeCount: item.statistics?.likeCount,
-      commentCount: item.statistics?.commentCount,
-      tags: item.snippet.tags,
-      categoryId: item.snippet.categoryId,
-      liveStreaming: item.liveStreamingDetails ? {
-        isLive: !!item.liveStreamingDetails.concurrentViewers,
-        concurrentViewers: item.liveStreamingDetails.concurrentViewers,
-        liveChatId: item.liveStreamingDetails.activeLiveChatId,
-      } : undefined,
-    };
+    if (!item) throw new Error('Video not found');
+    return mapVideoDetails(item);
   },
 
-  async getChannelDetails(channelId: string, signal?: AbortSignal): Promise<ChannelDetails> {
+  async getChannelDetails({
+    channelId,
+    signal,
+  }: ChannelDetailsParams): Promise<ChannelDetails> {
     const params = new URLSearchParams({
       part: 'snippet,statistics,brandingSettings',
       id: channelId,
-      key: YOUTUBE_API_KEY,
+      key: config.youtube.apiKey,
     });
 
-    const data = await httpClient<any>(`${YOUTUBE_API_BASE_URL}/channels?${params.toString()}`, { signal });
-    if (!data.items?.length) throw new Error('Channel not found');
-
+    const raw = await httpClient<unknown>(
+      `${YOUTUBE_API_BASE_URL}/channels?${params.toString()}`,
+      { signal }
+    );
+    const data = ChannelListResponseSchema.parse(raw);
     const item = data.items[0];
-    return {
-      id: item.id,
-      title: item.snippet.title,
-      description: item.snippet.description,
-      thumbnailUrl: item.snippet.thumbnails?.medium?.url || '',
-      subscriberCount: item.statistics?.subscriberCount,
-      videoCount: item.statistics?.videoCount,
-      viewCount: item.statistics?.viewCount,
-      bannerImageUrl: item.brandingSettings?.image?.bannerExternalUrl,
-    };
+    if (!item) throw new Error('Channel not found');
+    return mapChannelDetails(item);
   },
 
-  async getVideoComments(videoId: string, maxResults = 20, pageToken?: string, signal?: AbortSignal): Promise<PaginatedResponse<CommentData>> {
+  async getVideoComments({
+    videoId,
+    maxResults = 20,
+    pageToken,
+    signal,
+  }: VideoCommentsParams): Promise<PaginatedResponse<CommentData>> {
     const params = new URLSearchParams({
       part: 'snippet,replies',
       videoId,
       maxResults: String(maxResults),
-      key: YOUTUBE_API_KEY,
+      key: config.youtube.apiKey,
     });
     if (pageToken) params.append('pageToken', pageToken);
 
-    const data = await httpClient<any>(`${YOUTUBE_API_BASE_URL}/commentThreads?${params.toString()}`, { signal });
-
+    const raw = await httpClient<unknown>(
+      `${YOUTUBE_API_BASE_URL}/commentThreads?${params.toString()}`,
+      { signal }
+    );
+    const data = CommentThreadListResponseSchema.parse(raw);
     return {
-      items: (data.items || []).map((item: any) => {
-        const topLevel = item.snippet.topLevelComment.snippet;
-        return {
-          id: item.id,
-          name: topLevel.authorDisplayName,
-          text: topLevel.textOriginal,
-          publishedAt: topLevel.publishedAt,
-          authorProfileImageUrl: topLevel.authorProfileImageUrl,
-          replies: (item.replies?.comments || []).map((reply: any) => ({
-            id: reply.id,
-            name: reply.snippet.authorDisplayName,
-            text: reply.snippet.textOriginal,
-            publishedAt: reply.snippet.publishedAt,
-            authorProfileImageUrl: reply.snippet.authorProfileImageUrl,
-            replies: [],
-          })),
-        };
-      }),
+      items: data.items.map(mapCommentThread),
       nextPageToken: data.nextPageToken,
     };
   },

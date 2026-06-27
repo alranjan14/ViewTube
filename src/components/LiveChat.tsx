@@ -1,17 +1,17 @@
-import { Send, X } from "lucide-react";
-import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import IconButton from "../shared/ui/IconButton";
-import { addMessage, ChatMessage } from "../utils/chatSlice";
-import { generateRandomName, makeRandomMessage } from "../utils/helper";
-import { RootState } from "../utils/store";
-import ChatMessageComponent from "./ChatMessage";
+import { Send, X } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import IconButton from '../shared/ui/IconButton';
+import { addMessage, ChatMessage } from '../utils/chatSlice';
+import { generateRandomName, makeRandomMessage } from '../utils/helper';
+import { RootState } from '../utils/store';
+import ChatMessageComponent from './ChatMessage';
 
 const createMessageId = () =>
   `${Date.now()}-${Math.random().toString(36).slice(2)}`;
 
 const LiveChat = () => {
-  const [liveMessage, setLiveMessage] = useState("");
+  const [liveMessage, setLiveMessage] = useState('');
   const dispatch = useDispatch();
 
   const chatMessages = useSelector((store: RootState) => store.chat.messages);
@@ -45,7 +45,11 @@ const LiveChat = () => {
       <div className="flex-1 overflow-y-auto flex flex-col-reverse custom-scrollbar py-2">
         <div>
           {chatMessages.map((c: ChatMessage) => (
-            <ChatMessageComponent key={c.id} name={c.name} message={c.message} />
+            <ChatMessageComponent
+              key={c.id}
+              name={c.name}
+              message={c.message}
+            />
           ))}
         </div>
       </div>
@@ -57,15 +61,15 @@ const LiveChat = () => {
           onSubmit={(e) => {
             e.preventDefault();
             if (!liveMessage.trim()) return;
-            
+
             dispatch(
               addMessage({
                 id: createMessageId(),
-                name: "You",
+                name: 'You',
                 message: liveMessage,
               })
             );
-            setLiveMessage("");
+            setLiveMessage('');
           }}
         >
           <div className="flex-1 bg-white border border-slate-200 rounded-full flex items-center px-4 py-2 focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500 transition-all">
@@ -78,9 +82,9 @@ const LiveChat = () => {
               onChange={(e) => setLiveMessage(e.target.value)}
             />
           </div>
-          <IconButton 
-            type="submit" 
-            variant="solid" 
+          <IconButton
+            type="submit"
+            variant="solid"
             className="flex-shrink-0 bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50"
             disabled={!liveMessage.trim()}
             aria-label="Send message"

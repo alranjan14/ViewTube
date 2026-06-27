@@ -1,10 +1,17 @@
-import { useCallback } from "react";
-import { VideoSummary } from "../types/api";
-import { useLocalStorage } from "./useLocalStorage";
+import { useCallback } from 'react';
+import { STORAGE_KEYS } from '../config/storage';
+import { VideoSummary } from '../types/api';
+import { useLocalStorage } from './useLocalStorage';
 
 export const useLibrary = () => {
-  const [history, setHistory] = useLocalStorage<VideoSummary[]>("yt_clone_history", []);
-  const [watchLater, setWatchLater] = useLocalStorage<VideoSummary[]>("yt_clone_watch_later", []);
+  const [history, setHistory] = useLocalStorage<VideoSummary[]>(
+    STORAGE_KEYS.history,
+    []
+  );
+  const [watchLater, setWatchLater] = useLocalStorage<VideoSummary[]>(
+    STORAGE_KEYS.watchLater,
+    []
+  );
 
   const addToHistory = useCallback(
     (video: VideoSummary) => {
@@ -36,7 +43,10 @@ export const useLibrary = () => {
     [setWatchLater]
   );
 
-  const isWatchLater = useCallback((videoId: string) => watchLater.some((v) => v.id === videoId), [watchLater]);
+  const isWatchLater = useCallback(
+    (videoId: string) => watchLater.some((v) => v.id === videoId),
+    [watchLater]
+  );
 
   return {
     history,

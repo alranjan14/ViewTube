@@ -1,43 +1,59 @@
-import { ThumbsUp, ThumbsDown, Share2, Plus, CircleUser, Check, Clock } from "lucide-react";
-import React, { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
-import { Link, useSearchParams } from "react-router-dom";
-import CommentsContainer from "../components/CommentsContainer";
-import LiveChat from "../components/LiveChat";
-import RelatedVideos from "../components/RelatedVideos";
-import { useVideoDetails, useChannelDetails } from "../shared/hooks/queries";
-import { useLibrary } from "../shared/hooks/useLibrary";
-import { usePlaylists } from "../shared/hooks/usePlaylists";
-import { useWatchLater } from "../shared/hooks/useWatchLater";
-import Button from "../shared/ui/Button";
-import Skeleton from "../shared/ui/Skeleton";
-import { closeMenu } from "../utils/appSlice";
+import {
+  ThumbsUp,
+  ThumbsDown,
+  Share2,
+  Plus,
+  CircleUser,
+  Check,
+  Clock,
+} from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { Link, useSearchParams } from 'react-router-dom';
+import CommentsContainer from '../components/CommentsContainer';
+import LiveChat from '../components/LiveChat';
+import RelatedVideos from '../components/RelatedVideos';
+import { useVideoDetails, useChannelDetails } from '../shared/hooks/queries';
+import { useLibrary } from '../shared/hooks/useLibrary';
+import { usePlaylists } from '../shared/hooks/usePlaylists';
+import { useWatchLater } from '../shared/hooks/useWatchLater';
+import Button from '../shared/ui/Button';
+import Skeleton from '../shared/ui/Skeleton';
+import { closeMenu } from '../utils/appSlice';
 
 const YOUTUBE_ID_PATTERN = /^[A-Za-z0-9_-]{11}$/;
 
 const WatchPage = () => {
   const [searchParams] = useSearchParams();
-  const rawVideoId = searchParams.get("v");
-  const videoId = rawVideoId && YOUTUBE_ID_PATTERN.test(rawVideoId) ? rawVideoId : null;
+  const rawVideoId = searchParams.get('v');
+  const videoId =
+    rawVideoId && YOUTUBE_ID_PATTERN.test(rawVideoId) ? rawVideoId : null;
   const [showFullDesc, setShowFullDesc] = useState(false);
 
   const dispatch = useDispatch();
-  const { data: videoDetails, isLoading } = useVideoDetails(videoId || "");
-  const { data: channelDetails } = useChannelDetails(videoDetails?.channelId || "");
+  const { data: videoDetails, isLoading } = useVideoDetails(videoId || '');
+  const { data: channelDetails } = useChannelDetails(
+    videoDetails?.channelId || ''
+  );
   const { addToHistory } = useLibrary();
   const { isSaved, toggleSave } = useWatchLater();
   const { playlists, createPlaylist, addVideoToPlaylist } = usePlaylists();
 
   const handleAddToPlaylist = () => {
     if (!videoDetails) return;
-    const name = window.prompt("Enter new playlist name or type 'Favorites':", "Favorites");
+    const name = window.prompt(
+      "Enter new playlist name or type 'Favorites':",
+      'Favorites'
+    );
     if (!name) return;
-    
-    let playlist = playlists.find(p => p.title.toLowerCase() === name.toLowerCase());
+
+    let playlist = playlists.find(
+      (p) => p.title.toLowerCase() === name.toLowerCase()
+    );
     if (!playlist) {
       playlist = createPlaylist(name);
     }
-    
+
     // Convert to VideoSummary
     addVideoToPlaylist(playlist.id, {
       id: videoDetails.id,
@@ -67,15 +83,19 @@ const WatchPage = () => {
   }, [videoDetails, addToHistory]);
 
   if (!videoId) {
-    return <div className="p-6 text-sm text-red-700 bg-red-50 m-4 rounded-xl border border-red-100">Missing or invalid video id.</div>;
+    return (
+      <div className="p-6 text-sm text-red-700 bg-red-50 m-4 rounded-xl border border-red-100">
+        Missing or invalid video id.
+      </div>
+    );
   }
 
   // Format numbers
   const formatCompact = (val?: string | number) => {
-    if (!val) return "0";
-    const num = typeof val === "string" ? parseInt(val, 10) : val;
-    if (isNaN(num)) return "0";
-    
+    if (!val) return '0';
+    const num = typeof val === 'string' ? parseInt(val, 10) : val;
+    if (isNaN(num)) return '0';
+
     if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
     if (num >= 1000) return `${(num / 1000).toFixed(1)}K`;
     return num.toString();
@@ -89,7 +109,7 @@ const WatchPage = () => {
           <iframe
             className="w-full h-full"
             src={`https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1`}
-            title={videoDetails?.title || "YouTube video player"}
+            title={videoDetails?.title || 'YouTube video player'}
             frameBorder="0"
             referrerPolicy="strict-origin-when-cross-origin"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
@@ -108,27 +128,45 @@ const WatchPage = () => {
           </div>
         ) : videoDetails ? (
           <div className="mt-4 flex flex-col gap-3">
-            <h1 className="text-xl sm:text-2xl font-bold text-slate-900">{videoDetails.title}</h1>
-            
+            <h1 className="text-xl sm:text-2xl font-bold text-slate-900">
+              {videoDetails.title}
+            </h1>
+
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               {/* Channel Info */}
               <div className="flex items-center gap-4">
-                <Link to={`/channel/${videoDetails.channelId}`} className="flex items-center gap-3 cursor-pointer group outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded">
+                <Link
+                  to={`/channel/${videoDetails.channelId}`}
+                  className="flex items-center gap-3 cursor-pointer group outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded"
+                >
                   {channelDetails?.thumbnailUrl ? (
-                    <img src={channelDetails.thumbnailUrl} alt={channelDetails.title} className="w-10 h-10 rounded-full object-cover group-hover:ring-2 ring-blue-500 transition-all" />
+                    <img
+                      src={channelDetails.thumbnailUrl}
+                      alt={channelDetails.title}
+                      className="w-10 h-10 rounded-full object-cover group-hover:ring-2 ring-blue-500 transition-all"
+                    />
                   ) : (
-                    <CircleUser size={40} strokeWidth={1} className="text-slate-400 group-hover:text-slate-600 transition-colors" />
+                    <CircleUser
+                      size={40}
+                      strokeWidth={1}
+                      className="text-slate-400 group-hover:text-slate-600 transition-colors"
+                    />
                   )}
                   <div className="flex flex-col">
                     <span className="font-bold text-slate-900 group-hover:text-blue-600 transition-colors">
                       {channelDetails?.title || videoDetails.channelTitle}
                     </span>
                     <span className="text-xs text-slate-500">
-                      {channelDetails?.subscriberCount ? formatCompact(channelDetails.subscriberCount) + " subscribers" : "Loading..."}
+                      {channelDetails?.subscriberCount
+                        ? formatCompact(channelDetails.subscriberCount) +
+                          ' subscribers'
+                        : 'Loading...'}
                     </span>
                   </div>
                 </Link>
-                <Button variant="primary" className="ml-2">Subscribe</Button>
+                <Button variant="primary" className="ml-2">
+                  Subscribe
+                </Button>
               </div>
 
               {/* Actions */}
@@ -136,27 +174,33 @@ const WatchPage = () => {
                 <div className="flex items-center bg-slate-100 rounded-full">
                   <button className="flex items-center gap-2 px-4 py-2 hover:bg-slate-200 transition-colors rounded-l-full border-r border-slate-300">
                     <ThumbsUp size={18} />
-                    <span className="text-sm font-medium">{formatCompact(videoDetails.likeCount)}</span>
+                    <span className="text-sm font-medium">
+                      {formatCompact(videoDetails.likeCount)}
+                    </span>
                   </button>
                   <button className="px-4 py-2 hover:bg-slate-200 transition-colors rounded-r-full">
                     <ThumbsDown size={18} />
                   </button>
                 </div>
-                
+
                 <button className="flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 transition-colors rounded-full font-medium text-sm">
                   <Share2 size={18} />
                   Share
                 </button>
-                
-                <button 
+
+                <button
                   onClick={() => toggleSave(videoDetails)}
                   className={`flex items-center gap-2 px-4 py-2 hover:bg-slate-200 transition-colors rounded-full font-medium text-sm ${isSaved(videoDetails.id) ? 'bg-slate-200 text-slate-900' : 'bg-slate-100'}`}
                 >
-                  {isSaved(videoDetails.id) ? <Check size={18} /> : <Clock size={18} />}
-                  {isSaved(videoDetails.id) ? "Saved" : "Watch Later"}
+                  {isSaved(videoDetails.id) ? (
+                    <Check size={18} />
+                  ) : (
+                    <Clock size={18} />
+                  )}
+                  {isSaved(videoDetails.id) ? 'Saved' : 'Watch Later'}
                 </button>
 
-                <button 
+                <button
                   onClick={handleAddToPlaylist}
                   className="flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 transition-colors rounded-full font-medium text-sm"
                 >
@@ -167,7 +211,7 @@ const WatchPage = () => {
             </div>
 
             {/* Description Box */}
-            <div 
+            <div
               role="button"
               tabIndex={0}
               aria-expanded={showFullDesc}
@@ -181,12 +225,17 @@ const WatchPage = () => {
               }}
             >
               <div className="font-semibold mb-1">
-                {formatCompact(videoDetails.viewCount)} views • {new Date(videoDetails.publishedAt || '').toLocaleDateString()}
+                {formatCompact(videoDetails.viewCount)} views •{' '}
+                {new Date(videoDetails.publishedAt || '').toLocaleDateString()}
               </div>
-              <p className={`whitespace-pre-wrap text-slate-700 ${!showFullDesc ? 'line-clamp-3' : ''}`}>
-                {videoDetails.description || "No description provided."}
+              <p
+                className={`whitespace-pre-wrap text-slate-700 ${!showFullDesc ? 'line-clamp-3' : ''}`}
+              >
+                {videoDetails.description || 'No description provided.'}
               </p>
-              {!showFullDesc && <div className="font-semibold mt-2">Show more</div>}
+              {!showFullDesc && (
+                <div className="font-semibold mt-2">Show more</div>
+              )}
             </div>
           </div>
         ) : null}

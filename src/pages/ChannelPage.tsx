@@ -1,14 +1,14 @@
-import React, { useState } from "react";
-import { useParams } from "react-router-dom";
-import VideoCard from "../components/VideoCard";
-import { useChannelDetails, useChannelVideos } from "../shared/hooks/queries";
-import { useIntersectionObserver } from "../shared/hooks/useIntersectionObserver";
-import Button from "../shared/ui/Button";
-import Skeleton from "../shared/ui/Skeleton";
+import { useState } from 'react';
+import { useParams } from 'react-router-dom';
+import VideoCard from '../components/VideoCard';
+import { useChannelDetails, useChannelVideos } from '../shared/hooks/queries';
+import { useIntersectionObserver } from '../shared/hooks/useIntersectionObserver';
+import Button from '../shared/ui/Button';
+import Skeleton from '../shared/ui/Skeleton';
 
 const ChannelPage = () => {
   const { channelId } = useParams<{ channelId: string }>();
-  const [activeTab, setActiveTab] = useState<"VIDEOS" | "ABOUT">("VIDEOS");
+  const [activeTab, setActiveTab] = useState<'VIDEOS' | 'ABOUT'>('VIDEOS');
   const [isSubscribed, setIsSubscribed] = useState(false);
 
   const {
@@ -25,11 +25,14 @@ const ChannelPage = () => {
     isFetchingNextPage,
   } = useChannelVideos(channelId!);
 
-  const loadMoreRef = useIntersectionObserver(() => {
-    if (hasNextPage && !isFetchingNextPage) {
-      fetchNextPage();
-    }
-  }, { enabled: hasNextPage && !isFetchingNextPage });
+  const loadMoreRef = useIntersectionObserver(
+    () => {
+      if (hasNextPage && !isFetchingNextPage) {
+        fetchNextPage();
+      }
+    },
+    { enabled: hasNextPage && !isFetchingNextPage }
+  );
 
   if (isChannelLoading) {
     return (
@@ -51,17 +54,21 @@ const ChannelPage = () => {
   if (channelError || !channel) {
     return (
       <div className="flex-1 flex flex-col items-center justify-center py-20 px-4 text-center">
-        <h2 className="text-xl font-semibold text-slate-800">Channel not found</h2>
-        <p className="text-slate-500 mt-2">The channel you are looking for does not exist or an error occurred.</p>
+        <h2 className="text-xl font-semibold text-slate-800">
+          Channel not found
+        </h2>
+        <p className="text-slate-500 mt-2">
+          The channel you are looking for does not exist or an error occurred.
+        </p>
       </div>
     );
   }
 
   // Format numbers
   const formatCount = (val?: string) => {
-    if (!val) return "0";
+    if (!val) return '0';
     const num = parseInt(val, 10);
-    if (isNaN(num)) return "0";
+    if (isNaN(num)) return '0';
     if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
     if (num >= 1000) return `${(num / 1000).toFixed(1)}K`;
     return `${num}`;
@@ -91,9 +98,13 @@ const ChannelPage = () => {
             className="w-20 h-20 sm:w-32 sm:h-32 rounded-full object-cover border-4 border-white shadow-sm"
           />
           <div className="flex flex-col flex-1">
-            <h1 className="text-2xl sm:text-3xl font-bold text-slate-900">{channel.title}</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-slate-900">
+              {channel.title}
+            </h1>
             <div className="flex items-center text-sm sm:text-base text-slate-600 mt-1 gap-2">
-              <span className="font-medium text-slate-800">@{channel.title.replace(/\s+/g, '').toLowerCase()}</span>
+              <span className="font-medium text-slate-800">
+                @{channel.title.replace(/\s+/g, '').toLowerCase()}
+              </span>
               <span>•</span>
               <span>{formatCount(channel.subscriberCount)} subscribers</span>
               <span>•</span>
@@ -107,11 +118,11 @@ const ChannelPage = () => {
           </div>
           <div className="mt-2 sm:mt-0">
             <Button
-              variant={isSubscribed ? "secondary" : "primary"}
+              variant={isSubscribed ? 'secondary' : 'primary'}
               onClick={() => setIsSubscribed(!isSubscribed)}
-              className={isSubscribed ? "" : "bg-slate-900 hover:bg-slate-800"}
+              className={isSubscribed ? '' : 'bg-slate-900 hover:bg-slate-800'}
             >
-              {isSubscribed ? "Subscribed" : "Subscribe"}
+              {isSubscribed ? 'Subscribed' : 'Subscribe'}
             </Button>
           </div>
         </div>
@@ -119,24 +130,28 @@ const ChannelPage = () => {
         {/* Tabs */}
         <div className="flex gap-6 sm:gap-8 border-b border-slate-200 mt-6 sm:mt-8">
           <button
-            onClick={() => setActiveTab("VIDEOS")}
+            onClick={() => setActiveTab('VIDEOS')}
             className={`pb-3 text-sm font-semibold transition-colors relative ${
-              activeTab === "VIDEOS" ? "text-slate-900" : "text-slate-500 hover:text-slate-700"
+              activeTab === 'VIDEOS'
+                ? 'text-slate-900'
+                : 'text-slate-500 hover:text-slate-700'
             }`}
           >
             VIDEOS
-            {activeTab === "VIDEOS" && (
+            {activeTab === 'VIDEOS' && (
               <div className="absolute bottom-0 left-0 w-full h-0.5 bg-slate-900 rounded-t"></div>
             )}
           </button>
           <button
-            onClick={() => setActiveTab("ABOUT")}
+            onClick={() => setActiveTab('ABOUT')}
             className={`pb-3 text-sm font-semibold transition-colors relative ${
-              activeTab === "ABOUT" ? "text-slate-900" : "text-slate-500 hover:text-slate-700"
+              activeTab === 'ABOUT'
+                ? 'text-slate-900'
+                : 'text-slate-500 hover:text-slate-700'
             }`}
           >
             ABOUT
-            {activeTab === "ABOUT" && (
+            {activeTab === 'ABOUT' && (
               <div className="absolute bottom-0 left-0 w-full h-0.5 bg-slate-900 rounded-t"></div>
             )}
           </button>
@@ -145,12 +160,12 @@ const ChannelPage = () => {
 
       {/* Tab Content */}
       <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 mt-6">
-        {activeTab === "VIDEOS" && (
+        {activeTab === 'VIDEOS' && (
           <div>
             {isVideosLoading ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
                 {Array(10)
-                  .fill("")
+                  .fill('')
                   .map((_, i) => (
                     <Skeleton key={i} />
                   ))}
@@ -168,7 +183,10 @@ const ChannelPage = () => {
                 </div>
                 {/* Intersection Observer Target */}
                 {hasNextPage && (
-                  <div ref={loadMoreRef} className="w-full h-20 flex items-center justify-center mt-4">
+                  <div
+                    ref={loadMoreRef}
+                    className="w-full h-20 flex items-center justify-center mt-4"
+                  >
                     {isFetchingNextPage && (
                       <div className="flex items-center gap-2 text-slate-500 font-medium">
                         <span className="w-5 h-5 border-2 border-slate-300 border-t-slate-600 rounded-full animate-spin"></span>
@@ -182,11 +200,14 @@ const ChannelPage = () => {
           </div>
         )}
 
-        {activeTab === "ABOUT" && (
+        {activeTab === 'ABOUT' && (
           <div className="bg-slate-50 rounded-2xl p-6 border border-slate-100 max-w-3xl">
-            <h2 className="text-lg font-bold text-slate-900 mb-4">Description</h2>
+            <h2 className="text-lg font-bold text-slate-900 mb-4">
+              Description
+            </h2>
             <p className="text-slate-700 whitespace-pre-wrap text-sm leading-relaxed">
-              {channel.description || "No description available for this channel."}
+              {channel.description ||
+                'No description available for this channel.'}
             </p>
             <div className="mt-8 pt-6 border-t border-slate-200">
               <h2 className="text-lg font-bold text-slate-900 mb-4">Stats</h2>
@@ -197,7 +218,9 @@ const ChannelPage = () => {
                 </li>
                 <li className="flex justify-between pb-2 border-b border-slate-200/60">
                   <span>Views</span>
-                  <span className="font-medium text-slate-800">{formatCount(channel.viewCount)}</span>
+                  <span className="font-medium text-slate-800">
+                    {formatCount(channel.viewCount)}
+                  </span>
                 </li>
               </ul>
             </div>

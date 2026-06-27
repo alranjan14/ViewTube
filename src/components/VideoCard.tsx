@@ -1,22 +1,29 @@
-import { MoreVertical } from "lucide-react";
-import React from "react";
-import { useNavigate } from "react-router-dom";
-import { useChannelDetails } from "../shared/hooks/queries";
-import { VideoSummary } from "../shared/types/api";
-import IconButton from "../shared/ui/IconButton";
+import { MoreVertical } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { useChannelDetails } from '../shared/hooks/queries';
+import { VideoSummary } from '../shared/types/api';
+import IconButton from '../shared/ui/IconButton';
 
 const VideoCard = ({ info }: { info: VideoSummary }) => {
   const navigate = useNavigate();
-  const { title, channelId, channelTitle, thumbnailUrl, viewCount, publishedAt, duration } = info;
-  
+  const {
+    title,
+    channelId,
+    channelTitle,
+    thumbnailUrl,
+    viewCount,
+    publishedAt,
+    duration,
+  } = info;
+
   // Fetch actual channel profile picture
   const { data: channelData } = useChannelDetails(channelId);
 
   // Format views
   const formatViews = (val?: string | number) => {
-    if (!val) return "No views";
-    const views = typeof val === "string" ? parseInt(val, 10) : val;
-    if (isNaN(views)) return "No views";
+    if (!val) return 'No views';
+    const views = typeof val === 'string' ? parseInt(val, 10) : val;
+    if (isNaN(views)) return 'No views';
     if (views >= 1000000) return `${(views / 1000000).toFixed(1)}M views`;
     if (views >= 1000) return `${(views / 1000).toFixed(1)}K views`;
     return `${views} views`;
@@ -26,8 +33,8 @@ const VideoCard = ({ info }: { info: VideoSummary }) => {
     <div className="flex flex-col gap-3 group cursor-pointer w-full">
       {/* Thumbnail */}
       <div className="relative aspect-video w-full overflow-hidden rounded-xl bg-slate-100">
-        <img 
-          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" 
+        <img
+          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
           src={info.thumbnails?.medium || thumbnailUrl}
           srcSet={
             info.thumbnails
@@ -38,12 +45,13 @@ const VideoCard = ({ info }: { info: VideoSummary }) => {
               : `${thumbnailUrl} 320w`
           }
           sizes="(max-width: 600px) 100vw, (max-width: 900px) 50vw, 33vw"
-          alt={title} 
+          alt={title}
           loading="lazy"
           onError={(e) => {
             const target = e.target as HTMLImageElement;
-            target.src = "https://via.placeholder.com/320x180.png?text=No+Thumbnail";
-            target.srcset = "";
+            target.src =
+              'https://via.placeholder.com/320x180.png?text=No+Thumbnail';
+            target.srcset = '';
           }}
         />
         {duration && (
@@ -52,23 +60,23 @@ const VideoCard = ({ info }: { info: VideoSummary }) => {
           </div>
         )}
       </div>
-      
+
       {/* Meta */}
       <div className="flex gap-3 pr-2">
         <div className="flex-shrink-0 mt-0.5">
           {channelData?.thumbnailUrl ? (
-            <img 
-              src={channelData.thumbnailUrl} 
-              alt={channelTitle} 
+            <img
+              src={channelData.thumbnailUrl}
+              alt={channelTitle}
               className="w-9 h-9 rounded-full object-cover bg-slate-100 shadow-sm"
               loading="lazy"
             />
           ) : (
-            <img 
-              src={`https://ui-avatars.com/api/?name=${encodeURIComponent(channelTitle)}&background=random&color=fff&rounded=true&size=36&font-size=0.4`} 
-              alt={channelTitle} 
+            <img
+              src={`https://ui-avatars.com/api/?name=${encodeURIComponent(channelTitle)}&background=random&color=fff&rounded=true&size=36&font-size=0.4`}
+              alt={channelTitle}
               className="w-9 h-9 rounded-full object-cover shadow-sm"
-              loading="lazy" 
+              loading="lazy"
             />
           )}
         </div>
@@ -77,7 +85,7 @@ const VideoCard = ({ info }: { info: VideoSummary }) => {
             <h3 className="text-base font-semibold leading-tight text-slate-900 line-clamp-2">
               {title}
             </h3>
-            <div 
+            <div
               onClick={(e) => {
                 e.stopPropagation();
                 navigate('/channel/' + channelId);

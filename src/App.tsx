@@ -1,20 +1,21 @@
-import { GoogleOAuthProvider } from "@react-oauth/google";
-import { PlaySquare } from "lucide-react";
-import React, { lazy } from "react";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import Body from "./components/Body";
-import { ROUTES } from "./shared/routes";
+import { GoogleOAuthProvider } from '@react-oauth/google';
+import { PlaySquare } from 'lucide-react';
+import { lazy } from 'react';
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import Body from './components/Body';
+import { config } from './shared/config/env';
+import { ROUTES } from './shared/routes';
 
-const ChannelPage = lazy(() => import("./pages/ChannelPage"));
-const HomePage = lazy(() => import("./pages/HomePage"));
-const ExplorePage = lazy(() => import("./pages/ExplorePage"));
-const LibraryPage = lazy(() => import("./pages/LibraryPage"));
-const NotFoundPage = lazy(() => import("./pages/NotFoundPage"));
-const PlaylistPage = lazy(() => import("./pages/PlaylistPage"));
-const SearchResultsPage = lazy(() => import("./pages/SearchResultsPage"));
-const SettingsPage = lazy(() => import("./pages/SettingsPage"));
-const WatchPage = lazy(() => import("./pages/WatchPage"));
-const PlaceholderPage = lazy(() => import("./pages/PlaceholderPage"));
+const ChannelPage = lazy(() => import('./pages/ChannelPage'));
+const HomePage = lazy(() => import('./pages/HomePage'));
+const ExplorePage = lazy(() => import('./pages/ExplorePage'));
+const LibraryPage = lazy(() => import('./pages/LibraryPage'));
+const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
+const PlaylistPage = lazy(() => import('./pages/PlaylistPage'));
+const SearchResultsPage = lazy(() => import('./pages/SearchResultsPage'));
+const SettingsPage = lazy(() => import('./pages/SettingsPage'));
+const WatchPage = lazy(() => import('./pages/WatchPage'));
+const PlaceholderPage = lazy(() => import('./pages/PlaceholderPage'));
 
 const appRouter = createBrowserRouter([
   {
@@ -31,8 +32,14 @@ const appRouter = createBrowserRouter([
         element: <ExplorePage />,
       },
       {
-        path: "/subscriptions",
-        element: <PlaceholderPage title="Subscriptions" description="Sign in to see updates from your favorite ViewTube channels." icon={PlaySquare} />,
+        path: '/subscriptions',
+        element: (
+          <PlaceholderPage
+            title="Subscriptions"
+            description="Sign in to see updates from your favorite ViewTube channels."
+            icon={PlaySquare}
+          />
+        ),
       },
       {
         path: ROUTES.WATCH,
@@ -63,7 +70,7 @@ const appRouter = createBrowserRouter([
 ]);
 
 function App() {
-  const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
+  const googleClientId = config.googleClientId;
 
   return (
     <GoogleOAuthProvider clientId={googleClientId}>

@@ -1,6 +1,5 @@
-import React from "react";
-import { Link, useRouteError } from "react-router-dom";
-import { ROUTES } from "../shared/routes";
+import { Link, useRouteError } from 'react-router-dom';
+import { ROUTES } from '../shared/routes';
 
 const NotFoundPage = () => {
   const error = useRouteError() as { statusText?: string; message?: string };
@@ -10,7 +9,9 @@ const NotFoundPage = () => {
       <h1 className="text-6xl font-bold text-slate-300 mb-4">404</h1>
       <h2 className="text-2xl font-semibold mb-2">Oops! Page not found.</h2>
       <p className="text-slate-600 mb-6 text-center max-w-md">
-        {error?.statusText || error?.message || "The page you are looking for does not exist or has been moved."}
+        {error?.statusText ||
+          error?.message ||
+          'The page you are looking for does not exist or has been moved.'}
       </p>
       <Link
         to={ROUTES.HOME}

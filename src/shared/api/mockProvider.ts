@@ -1,6 +1,20 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import { ChannelDetails, CommentData, PaginatedResponse, VideoDetails, VideoSummary, SearchFilters } from '../types/api';
-import { IVideoProvider } from './videoProvider';
+import {
+  ChannelDetails,
+  CommentData,
+  PaginatedResponse,
+  VideoDetails,
+  VideoSummary,
+} from '../types/api';
+import {
+  ChannelDetailsParams,
+  ChannelVideosParams,
+  IVideoProvider,
+  SearchSuggestionsParams,
+  SearchVideosParams,
+  TrendingVideosParams,
+  VideoCommentsParams,
+  VideoDetailsParams,
+} from './videoProvider';
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -9,16 +23,20 @@ const mockVideoSummary: VideoSummary = {
   title: 'Mock Video: Building a ViewTube App with React and Vite',
   channelId: 'channel-1',
   channelTitle: 'Frontend Master',
-  thumbnailUrl: 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=800&q=80',
+  thumbnailUrl:
+    'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=800&q=80',
   viewCount: '1500000',
   publishedAt: new Date(Date.now() - 86400000 * 2).toISOString(),
   duration: 'PT15M33S',
 };
 
 export const mockProvider: IVideoProvider = {
-  async getTrendingVideos(_regionCode = 'IN', maxResults = 50, _pageToken?: string, videoCategoryId?: string, _signal?: AbortSignal): Promise<PaginatedResponse<VideoSummary>> {
+  async getTrendingVideos({
+    maxResults = 50,
+    videoCategoryId,
+  }: TrendingVideosParams = {}): Promise<PaginatedResponse<VideoSummary>> {
     await delay(500);
-    const items = Array(maxResults).fill(null).map((_, i) => ({
+    const items = Array.from({ length: maxResults }, (_, i) => ({
       ...mockVideoSummary,
       id: `trending-video-${videoCategoryId || 'all'}-${i}-${Date.now()}`,
       title: `Trending Video #${i + 1} ${videoCategoryId ? `(Cat ${videoCategoryId})` : ''}`,
@@ -26,7 +44,9 @@ export const mockProvider: IVideoProvider = {
     return { items, nextPageToken: 'mock-next-page-token' };
   },
 
-  async getSearchSuggestions(query: string, _signal?: AbortSignal): Promise<string[]> {
+  async getSearchSuggestions({
+    query,
+  }: SearchSuggestionsParams): Promise<string[]> {
     await delay(200);
     if (!query.trim()) return [];
     return [
@@ -38,9 +58,13 @@ export const mockProvider: IVideoProvider = {
     ];
   },
 
-  async getSearchVideos(query: string, maxResults = 25, _pageToken?: string, filters?: SearchFilters, _signal?: AbortSignal): Promise<PaginatedResponse<VideoSummary>> {
+  async getSearchVideos({
+    query,
+    maxResults = 25,
+    filters,
+  }: SearchVideosParams): Promise<PaginatedResponse<VideoSummary>> {
     await delay(500);
-    const items = Array(maxResults).fill(null).map((_, i) => ({
+    const items = Array.from({ length: maxResults }, (_, i) => ({
       ...mockVideoSummary,
       id: `search-video-${i}-${Date.now()}`,
       title: `${query} - Result #${i + 1} ${filters?.order ? `(${filters.order})` : ''}`,
@@ -48,23 +72,29 @@ export const mockProvider: IVideoProvider = {
     return { items, nextPageToken: 'mock-search-next-token' };
   },
 
-  async getChannelVideos(channelId: string, maxResults = 25, _pageToken?: string, _signal?: AbortSignal): Promise<PaginatedResponse<VideoSummary>> {
+  async getChannelVideos({
+    channelId,
+    maxResults = 25,
+  }: ChannelVideosParams): Promise<PaginatedResponse<VideoSummary>> {
     await delay(500);
-    const items = Array(maxResults).fill(null).map((_, i) => ({
+    const items = Array.from({ length: maxResults }, (_, i) => ({
       ...mockVideoSummary,
       id: `channel-video-${channelId}-${i}-${Date.now()}`,
       title: `Upload #${i + 1} from ${channelId}`,
-      channelId: channelId,
+      channelId,
     }));
     return { items, nextPageToken: 'mock-channel-next-token' };
   },
 
-  async getVideoDetails(videoId: string, _signal?: AbortSignal): Promise<VideoDetails> {
+  async getVideoDetails({
+    videoId,
+  }: VideoDetailsParams): Promise<VideoDetails> {
     await delay(300);
     return {
       ...mockVideoSummary,
       id: videoId,
-      description: 'This is a mock description for the video.\n\nIt supports multiple lines and simulates the data you would get from the real YouTube API.\n\nSubscribe for more content!',
+      description:
+        'This is a mock description for the video.\n\nIt supports multiple lines and simulates the data you would get from the real YouTube API.\n\nSubscribe for more content!',
       likeCount: '45000',
       commentCount: '1200',
       tags: ['react', 'vite', 'frontend', 'tutorial'],
@@ -72,38 +102,50 @@ export const mockProvider: IVideoProvider = {
     };
   },
 
-  async getChannelDetails(channelId: string, _signal?: AbortSignal): Promise<ChannelDetails> {
+  async getChannelDetails({
+    channelId,
+  }: ChannelDetailsParams): Promise<ChannelDetails> {
     await delay(300);
     return {
       id: channelId,
       title: 'Frontend Master',
       description: 'The best frontend channel on the mock web.',
-      thumbnailUrl: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200&q=80',
+      thumbnailUrl:
+        'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200&q=80',
       subscriberCount: '1250000',
       videoCount: '342',
       viewCount: '150000000',
-      bannerImageUrl: 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=1600&q=80',
+      bannerImageUrl:
+        'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=1600&q=80',
     };
   },
 
-  async getVideoComments(videoId: string, maxResults = 20, _pageToken?: string, _signal?: AbortSignal): Promise<PaginatedResponse<CommentData>> {
+  async getVideoComments({
+    videoId,
+    maxResults = 20,
+  }: VideoCommentsParams): Promise<PaginatedResponse<CommentData>> {
     await delay(400);
-    const items = Array(maxResults).fill(null).map((_, i) => ({
+    const items = Array.from({ length: maxResults }, (_, i) => ({
       id: `comment-${i}`,
       name: `User ${i + 1}`,
       text: `This is mock comment #${i + 1} for video ${videoId}. It looks incredibly realistic!`,
       publishedAt: new Date(Date.now() - 3600000 * i).toISOString(),
-      authorProfileImageUrl: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&q=80',
-      replies: i % 3 === 0 ? [
-        {
-          id: `reply-${i}-1`,
-          name: 'Channel Owner',
-          text: 'Thanks for the comment!',
-          publishedAt: new Date(Date.now() - 1800000 * i).toISOString(),
-          authorProfileImageUrl: 'https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=100&q=80',
-          replies: [],
-        }
-      ] : [],
+      authorProfileImageUrl:
+        'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&q=80',
+      replies:
+        i % 3 === 0
+          ? [
+              {
+                id: `reply-${i}-1`,
+                name: 'Channel Owner',
+                text: 'Thanks for the comment!',
+                publishedAt: new Date(Date.now() - 1800000 * i).toISOString(),
+                authorProfileImageUrl:
+                  'https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=100&q=80',
+                replies: [],
+              },
+            ]
+          : [],
     }));
     return { items, nextPageToken: 'mock-comments-next' };
   },

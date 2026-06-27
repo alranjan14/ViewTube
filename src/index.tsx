@@ -5,7 +5,19 @@ import ReactDOM from 'react-dom/client';
 import { Provider } from 'react-redux';
 import App from './App';
 import './index.css';
+import { logger } from './shared/lib/logger';
 import store from './utils/store';
+
+// Catch errors that escape React's render tree (async rejections, non-React listeners).
+window.addEventListener('unhandledrejection', (event) => {
+  logger.error('Unhandled promise rejection', { reason: event.reason });
+});
+window.addEventListener('error', (event) => {
+  logger.error('Uncaught error', {
+    message: event.message,
+    error: event.error,
+  });
+});
 
 const queryClient = new QueryClient({
   defaultOptions: {

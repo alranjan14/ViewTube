@@ -1,4 +1,3 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
 import { useSearchVideos } from '../shared/hooks/queries';
 import Skeleton from '../shared/ui/Skeleton';
@@ -42,10 +41,10 @@ const RelatedVideos = ({ title }: { title?: string }) => {
           <Link key={video.id} to={`/watch?v=${video.id}`}>
             <div className="flex gap-3 group p-2 hover:bg-slate-50/80 rounded-xl cursor-pointer transition-colors">
               <div className="relative w-[160px] flex-shrink-0 aspect-video rounded-xl overflow-hidden bg-slate-100">
-                <img 
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
-                  src={video.thumbnails?.medium || video.thumbnailUrl} 
-                  alt={video.title} 
+                <img
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  src={video.thumbnails?.medium || video.thumbnailUrl}
+                  alt={video.title}
                 />
                 {video.duration && (
                   <div className="absolute bottom-1 right-1 px-1 py-0.5 bg-black/80 text-white text-[10px] font-medium rounded">
@@ -54,14 +53,29 @@ const RelatedVideos = ({ title }: { title?: string }) => {
                 )}
               </div>
               <div className="flex flex-col py-0.5 overflow-hidden">
-                <h4 className="text-sm font-semibold leading-tight text-slate-900 line-clamp-2" title={video.title}>
+                <h4
+                  className="text-sm font-semibold leading-tight text-slate-900 line-clamp-2"
+                  title={video.title}
+                >
                   {video.title}
                 </h4>
-                <span className="text-xs text-slate-500 mt-1">{video.channelTitle}</span>
+                <span className="text-xs text-slate-500 mt-1">
+                  {video.channelTitle}
+                </span>
                 <div className="flex items-center text-xs text-slate-500 mt-0.5">
-                  {video.viewCount && <span>{parseInt(video.viewCount, 10).toLocaleString()} views</span>}
-                  {video.viewCount && video.publishedAt && <span className="mx-1">•</span>}
-                  {video.publishedAt && <span>{new Date(video.publishedAt).toLocaleDateString()}</span>}
+                  {video.viewCount && (
+                    <span>
+                      {parseInt(video.viewCount, 10).toLocaleString()} views
+                    </span>
+                  )}
+                  {video.viewCount && video.publishedAt && (
+                    <span className="mx-1">•</span>
+                  )}
+                  {video.publishedAt && (
+                    <span>
+                      {new Date(video.publishedAt).toLocaleDateString()}
+                    </span>
+                  )}
                 </div>
               </div>
             </div>

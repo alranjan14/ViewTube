@@ -1,18 +1,13 @@
 export const ROUTES = {
-  HOME: "/",
-  WATCH: "/watch",
-  SEARCH: "/results",
-  EXPLORE: "/explore",
-  CHANNEL: "/channel/:channelId",
-  PLAYLIST: "/playlist/:playlistId",
-  LIBRARY: "/library",
-  SETTINGS: "/settings",
-};
+  HOME: '/',
+  WATCH: '/watch',
+  SEARCH: '/results',
+  EXPLORE: '/explore',
+  CHANNEL: '/channel/:channelId',
+  PLAYLIST: '/playlist/:playlistId',
+  LIBRARY: '/library',
+  SETTINGS: '/settings',
+} as const;
 
-export const generatePath = (path: string, params: Record<string, string> = {}) => {
-  let url = path;
-  Object.keys(params).forEach((key) => {
-    url = url.replace(`:${key}`, params[key]);
-  });
-  return url;
-};
+// Use react-router's type-safe generatePath instead of a hand-rolled replacer.
+export { generatePath } from 'react-router-dom';
