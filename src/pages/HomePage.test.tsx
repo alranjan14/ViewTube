@@ -1,6 +1,6 @@
 import { screen, waitFor } from '@testing-library/react';
-import HomePage from './HomePage';
 import { renderWithProviders } from '../test/utils';
+import HomePage from './HomePage';
 
 describe('HomePage Integration', () => {
   it('renders loading skeletons initially, then trending videos', async () => {

@@ -1,5 +1,5 @@
-import React from "react";
 import { Coffee, Search } from "lucide-react";
+import React from "react";
 import { Link } from "react-router-dom";
 import { ROUTES } from "../shared/routes";
 

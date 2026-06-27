@@ -1,13 +1,12 @@
+import { ListFilter } from "lucide-react";
 import React, { useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Link } from "react-router-dom";
 import SearchVideoCard from "../components/SearchVideoCard";
 import { useSearchVideos } from "../shared/hooks/queries";
 import { useIntersectionObserver } from "../shared/hooks/useIntersectionObserver";
-import { ROUTES, generatePath } from "../shared/routes";
 import { SearchFilters } from "../shared/types/api";
 import Skeleton from "../shared/ui/Skeleton";
-import { ListFilter } from "lucide-react";
 
 const SearchResultsPage = () => {
   const [searchParams] = useSearchParams();

@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
 import { History, Clock, ListVideo, Trash2, UserCircle } from 'lucide-react';
+import React, { useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import VideoCard from '../components/VideoCard';
 import { useLibrary } from '../shared/hooks/useLibrary';
@@ -87,7 +87,7 @@ const LibraryPage = () => {
           <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
             <Clock size={100} strokeWidth={0.5} className="text-slate-200 mb-6" />
             <h3 className="text-2xl font-normal text-slate-900 mb-2">Save videos for later</h3>
-            <p className="text-slate-600 mb-6">You haven't saved any videos yet.</p>
+            <p className="text-slate-600 mb-6">You haven&apos;t saved any videos yet.</p>
           </div>
         ) : (
           <div className="flex overflow-x-auto gap-4 pb-4 hide-scrollbar snap-x">
@@ -111,7 +111,7 @@ const LibraryPage = () => {
           <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
             <ListVideo size={100} strokeWidth={0.5} className="text-slate-200 mb-6" />
             <h3 className="text-2xl font-normal text-slate-900 mb-2">Organize your favorite content</h3>
-            <p className="text-slate-600 mb-6">You don't have any playlists yet.</p>
+            <p className="text-slate-600 mb-6">You don&apos;t have any playlists yet.</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">

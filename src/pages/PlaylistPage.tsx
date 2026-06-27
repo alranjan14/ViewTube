@@ -1,8 +1,8 @@
+import { Trash2, ListVideo } from 'lucide-react';
 import React from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Trash2, ListVideo } from 'lucide-react';
-import { usePlaylists } from '../shared/hooks/usePlaylists';
 import SearchVideoCard from '../components/SearchVideoCard';
+import { usePlaylists } from '../shared/hooks/usePlaylists';
 
 const PlaylistPage = () => {
   const { playlistId } = useParams<{ playlistId: string }>();

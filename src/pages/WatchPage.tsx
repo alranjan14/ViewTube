@@ -13,9 +13,12 @@ import Button from "../shared/ui/Button";
 import Skeleton from "../shared/ui/Skeleton";
 import { closeMenu } from "../utils/appSlice";
 
+const YOUTUBE_ID_PATTERN = /^[A-Za-z0-9_-]{11}$/;
+
 const WatchPage = () => {
   const [searchParams] = useSearchParams();
-  const videoId = searchParams.get("v");
+  const rawVideoId = searchParams.get("v");
+  const videoId = rawVideoId && YOUTUBE_ID_PATTERN.test(rawVideoId) ? rawVideoId : null;
   const [showFullDesc, setShowFullDesc] = useState(false);
 
   const dispatch = useDispatch();
@@ -64,7 +67,7 @@ const WatchPage = () => {
   }, [videoDetails, addToHistory]);
 
   if (!videoId) {
-    return <div className="p-6 text-sm text-red-700 bg-red-50 m-4 rounded-xl border border-red-100">Missing video id.</div>;
+    return <div className="p-6 text-sm text-red-700 bg-red-50 m-4 rounded-xl border border-red-100">Missing or invalid video id.</div>;
   }
 
   // Format numbers
@@ -85,9 +88,10 @@ const WatchPage = () => {
         <div className="w-full bg-black rounded-xl overflow-hidden shadow-lg aspect-video">
           <iframe
             className="w-full h-full"
-            src={"https://www.youtube.com/embed/" + videoId + "?autoplay=1"}
+            src={`https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1`}
             title={videoDetails?.title || "YouTube video player"}
             frameBorder="0"
+            referrerPolicy="strict-origin-when-cross-origin"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
             allowFullScreen
           ></iframe>

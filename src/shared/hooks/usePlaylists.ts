@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
-import { useLocalStorage } from './useLocalStorage';
 import { VideoSummary } from '../types/api';
+import { useLocalStorage } from './useLocalStorage';
 
 export interface LocalPlaylist {
   id: string;

@@ -1,7 +1,7 @@
-import { render, screen } from '@testing-library/react';
-import { BrowserRouter } from 'react-router-dom';
-import VideoCard from './VideoCard';
+import { screen } from '@testing-library/react';
 import { VideoSummary } from '../shared/types/api';
+import { renderWithProviders } from '../test/utils';
+import VideoCard from './VideoCard';
 
 const mockVideo: VideoSummary = {
   id: 'test-video-1',
@@ -11,16 +11,10 @@ const mockVideo: VideoSummary = {
   thumbnailUrl: 'https://via.placeholder.com/320x180.png',
   viewCount: '1500000',
   publishedAt: '2026-06-01T00:00:00Z',
-  duration: 'PT10M15S'
+  duration: 'PT10M15S',
 };
 
-const renderVideoCard = () => {
-  return render(
-    <BrowserRouter>
-      <VideoCard info={mockVideo} />
-    </BrowserRouter>
-  );
-};
+const renderVideoCard = () => renderWithProviders(<VideoCard info={mockVideo} />);
 
 describe('VideoCard Component', () => {
   it('renders video details correctly', () => {

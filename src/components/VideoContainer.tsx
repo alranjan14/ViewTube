@@ -1,5 +1,5 @@
-import React from "react";
 import { AlertCircle } from "lucide-react";
+import React from "react";
 import { Link } from "react-router-dom";
 import { useTrendingVideos } from "../shared/hooks/queries";
 import { useIntersectionObserver } from "../shared/hooks/useIntersectionObserver";

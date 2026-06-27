@@ -1,4 +1,4 @@
-import { CircleUser, MoreVertical } from "lucide-react";
+import { MoreVertical } from "lucide-react";
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useChannelDetails } from "../shared/hooks/queries";

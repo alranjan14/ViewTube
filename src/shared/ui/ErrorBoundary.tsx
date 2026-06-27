@@ -3,6 +3,7 @@ import React, { Component, ErrorInfo, ReactNode } from "react";
 interface Props {
   children?: ReactNode;
   fallback?: ReactNode;
+  onReset?: () => void;
 }
 
 interface State {
@@ -23,6 +24,11 @@ export class ErrorBoundary extends Component<Props, State> {
     console.error("Uncaught error:", error, errorInfo);
   }
 
+  private handleReset = () => {
+    this.props.onReset?.();
+    this.setState({ hasError: false, error: undefined });
+  };
+
   public render() {
     if (this.state.hasError) {
       if (this.props.fallback) {
@@ -34,7 +40,7 @@ export class ErrorBoundary extends Component<Props, State> {
           <p className="text-gray-600 mb-4">{this.state.error?.message}</p>
           <button
             className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-            onClick={() => this.setState({ hasError: false })}
+            onClick={this.handleReset}
           >
             Try again
           </button>

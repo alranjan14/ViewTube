@@ -1,5 +1,5 @@
+import { MoreVertical } from 'lucide-react';
 import React from 'react';
-import { CircleUser, MoreVertical } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useChannelDetails } from '../shared/hooks/queries';
 import { VideoSummary } from '../shared/types/api';
@@ -7,7 +7,7 @@ import IconButton from '../shared/ui/IconButton';
 
 const SearchVideoCard = ({ info }: { info: VideoSummary }) => {
   const navigate = useNavigate();
-  const { id, title, channelId, channelTitle, thumbnailUrl, viewCount, publishedAt, duration } = info;
+  const { title, channelId, channelTitle, thumbnailUrl, viewCount, publishedAt, duration } = info;
 
   // Fetch actual channel profile picture
   const { data: channelData } = useChannelDetails(channelId);

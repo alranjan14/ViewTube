@@ -1,16 +1,16 @@
+import { useGoogleLogin } from "@react-oauth/google";
 import { Menu, Search, Mic, Bell, Video, CircleUser, LogOut } from "lucide-react";
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
-import { useGoogleLogin } from "@react-oauth/google";
-import { login, logout } from "../utils/authSlice";
-import { RootState } from "../utils/store";
 import { useSearchSuggestions } from "../shared/hooks/queries";
 import { useDebounce } from "../shared/hooks/useDebounce";
 import { useSearchHistory } from "../shared/hooks/useSearchHistory";
 import { ROUTES } from "../shared/routes";
 import IconButton from "../shared/ui/IconButton";
 import { toggleMenu } from "../utils/appSlice";
+import { login, logout } from "../utils/authSlice";
+import { RootState } from "../utils/store";
 
 const Head = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -63,8 +63,23 @@ const Head = () => {
   };
 
   const startVoiceSearch = () => {
-    // @ts-ignore - SpeechRecognition is not in standard TS lib
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    type SpeechRecognitionResultEvent = { results: ArrayLike<ArrayLike<{ transcript: string }>> };
+    type SpeechRecognitionErrorEvent = { error: string };
+    interface SpeechRecognitionInstance {
+      lang: string;
+      interimResults: boolean;
+      maxAlternatives: number;
+      onstart: () => void;
+      onend: () => void;
+      onresult: (event: SpeechRecognitionResultEvent) => void;
+      onerror: (event: SpeechRecognitionErrorEvent) => void;
+      start: () => void;
+    }
+    const w = window as typeof window & {
+      SpeechRecognition?: new () => SpeechRecognitionInstance;
+      webkitSpeechRecognition?: new () => SpeechRecognitionInstance;
+    };
+    const SpeechRecognition = w.SpeechRecognition || w.webkitSpeechRecognition;
     
     if (!SpeechRecognition) {
       alert("Your browser does not support voice search. Try Chrome or Safari.");
@@ -79,13 +94,13 @@ const Head = () => {
     recognition.onstart = () => setIsListening(true);
     recognition.onend = () => setIsListening(false);
 
-    recognition.onresult = (event: any) => {
+    recognition.onresult = (event: SpeechRecognitionResultEvent) => {
       const transcript = event.results[0][0].transcript;
       setSearchQuery(transcript);
       handleSearch(transcript);
     };
 
-    recognition.onerror = (event: any) => {
+    recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
       console.error("Speech recognition error:", event.error);
       setIsListening(false);
       if (event.error !== 'no-speech') {

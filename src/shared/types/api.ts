@@ -58,13 +58,3 @@ export interface SearchFilters {
   order?: 'date' | 'rating' | 'relevance' | 'title' | 'videoCount' | 'viewCount';
   publishedAfter?: string; // RFC 3339 formatted date-time value (1970-01-01T00:00:00Z)
 }
-
-export interface ChannelData {
-  id: string;
-  title: string;
-  description: string;
-  subscriberCount: string;
-  videoCount: string;
-  thumbnailUrl: string;
-  bannerUrl?: string;
-}

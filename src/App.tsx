@@ -1,9 +1,9 @@
+import { GoogleOAuthProvider } from "@react-oauth/google";
+import { PlaySquare } from "lucide-react";
 import React, { lazy } from "react";
-import { Provider } from "react-redux";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Body from "./components/Body";
 import { ROUTES } from "./shared/routes";
-import store from "./utils/store";
 
 const ChannelPage = lazy(() => import("./pages/ChannelPage"));
 const HomePage = lazy(() => import("./pages/HomePage"));
@@ -15,7 +15,6 @@ const SearchResultsPage = lazy(() => import("./pages/SearchResultsPage"));
 const SettingsPage = lazy(() => import("./pages/SettingsPage"));
 const WatchPage = lazy(() => import("./pages/WatchPage"));
 const PlaceholderPage = lazy(() => import("./pages/PlaceholderPage"));
-import { PlaySquare } from "lucide-react";
 
 const appRouter = createBrowserRouter([
   {
@@ -63,16 +62,12 @@ const appRouter = createBrowserRouter([
   },
 ]);
 
-import { GoogleOAuthProvider } from "@react-oauth/google";
-
 function App() {
   const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
 
   return (
     <GoogleOAuthProvider clientId={googleClientId}>
-      <Provider store={store}>
-        <RouterProvider router={appRouter} />
-      </Provider>
+      <RouterProvider router={appRouter} />
     </GoogleOAuthProvider>
   );
 }

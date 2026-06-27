@@ -1,4 +1,4 @@
-import { Home, Compass, PlaySquare, Clock, History, ThumbsUp, Flame, Music, Gamepad2, Trophy, ListVideo } from "lucide-react";
+import { Home, Compass, PlaySquare, Clock, History, Flame, Music, Gamepad2, Trophy, ListVideo } from "lucide-react";
 import React from "react";
 import { useSelector } from "react-redux";
 import { Link, useLocation } from "react-router-dom";

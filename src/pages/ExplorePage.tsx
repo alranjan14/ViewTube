@@ -1,5 +1,5 @@
-import React from "react";
 import { Flame, Music, Gamepad2, Trophy, Newspaper } from "lucide-react";
+import React from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import VideoContainer from "../components/VideoContainer";
 
