@@ -4,7 +4,8 @@ import { server } from '../../test/mocks/server';
 import { QuotaExceededError } from './httpClient';
 import { youtubeProvider } from './youtubeProvider';
 
-const BASE = 'https://youtube.googleapis.com/youtube/v3';
+// The provider hits the same-origin BFF proxy, not googleapis.com directly.
+const BASE = '/api/youtube';
 
 describe('youtubeProvider (schema parse + map + httpClient)', () => {
   it('getTrendingVideos validates and maps the videos payload', async () => {
@@ -184,5 +185,34 @@ describe('youtubeProvider (schema parse + map + httpClient)', () => {
       text: 'great video',
     });
     expect(firstComment?.replies[0]).toMatchObject({ id: 'r1', name: 'Bob' });
+  });
+
+  it('getSearchSuggestions parses the proxy JSON tuple into a string list', async () => {
+    server.use(
+      http.get('/api/suggest', () =>
+        HttpResponse.json(['re', ['react', 'redux'], { meta: 'ignored' }])
+      )
+    );
+    const suggestions = await youtubeProvider.getSearchSuggestions({
+      query: 're',
+    });
+    expect(suggestions).toEqual(['react', 'redux']);
+  });
+
+  it('getSearchSuggestions fails soft (returns []) on a proxy error', async () => {
+    server.use(
+      http.get('/api/suggest', () =>
+        HttpResponse.json({ error: { message: 'boom' } }, { status: 500 })
+      )
+    );
+    await expect(
+      youtubeProvider.getSearchSuggestions({ query: 'x' })
+    ).resolves.toEqual([]);
+  });
+
+  it('getSearchSuggestions returns [] for a blank query without a request', async () => {
+    await expect(
+      youtubeProvider.getSearchSuggestions({ query: '   ' })
+    ).resolves.toEqual([]);
   });
 });

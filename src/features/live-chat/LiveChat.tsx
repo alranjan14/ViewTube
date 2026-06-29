@@ -1,11 +1,11 @@
 import { ChevronUp, Send, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import IconButton from '../shared/ui/IconButton';
-import { addMessage, ChatMessage } from '../utils/chatSlice';
-import { generateRandomName, makeRandomMessage } from '../utils/helper';
-import { RootState } from '../utils/store';
-import ChatMessageComponent from './ChatMessage';
+import { addMessage, ChatMessage } from '@/app/slices/chatSlice';
+import { RootState } from '@/app/store';
+import ChatMessageComponent from '@/features/live-chat/ChatMessage';
+import { generateRandomName, makeRandomMessage } from '@/shared/lib/helper';
+import IconButton from '@/shared/ui/IconButton';
 
 const createMessageId = () =>
   `${Date.now()}-${Math.random().toString(36).slice(2)}`;

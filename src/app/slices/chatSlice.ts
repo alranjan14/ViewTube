@@ -1,5 +1,5 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { LIVE_CHAT_COUNT } from "./constants";
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { LIVE_CHAT_COUNT } from '@/shared/lib/constants';
 
 export interface ChatMessage {
   id: string;
@@ -16,7 +16,7 @@ const initialState: ChatState = {
 };
 
 const chatSlice = createSlice({
-  name: "chat",
+  name: 'chat',
   initialState,
   reducers: {
     addMessage: (state, action: PayloadAction<ChatMessage>) => {

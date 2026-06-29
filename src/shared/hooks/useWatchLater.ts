@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { STORAGE_KEYS } from '../config/storage';
+import { STORAGE_KEYS, STORAGE_LIMITS } from '../config/storage';
 import { VideoDetails, VideoSummary } from '../types/api';
 import { useLocalStorage } from './useLocalStorage';
 
@@ -36,7 +36,7 @@ export function useWatchLater() {
           duration: video.duration,
         };
 
-        return [summary, ...prev];
+        return [summary, ...prev].slice(0, STORAGE_LIMITS.watchLater);
       });
     },
     [setSavedVideos]

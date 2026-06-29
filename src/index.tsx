@@ -3,10 +3,14 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { Provider } from 'react-redux';
-import App from './App';
+import App from '@/app/App';
+import store from '@/app/store';
+import { logger } from '@/shared/lib/logger';
+import { initMonitoring } from '@/shared/lib/monitoring';
 import './index.css';
-import { logger } from './shared/lib/logger';
-import store from './utils/store';
+
+// Initialize error reporting (no-op unless VITE_SENTRY_DSN is set in a prod build).
+void initMonitoring();
 
 // Catch errors that escape React's render tree (async rejections, non-React listeners).
 window.addEventListener('unhandledrejection', (event) => {

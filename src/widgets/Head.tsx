@@ -1,26 +1,19 @@
-import { useGoogleLogin } from '@react-oauth/google';
-import {
-  Menu,
-  Search,
-  Mic,
-  Bell,
-  Video,
-  CircleUser,
-  LogOut,
-} from 'lucide-react';
-import React, { useState } from 'react';
+import { Menu, Search, Mic, Bell, Video, LogOut } from 'lucide-react';
+import React, { useCallback, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
-import { useSearchSuggestions } from '../shared/hooks/queries';
-import { useDebounce } from '../shared/hooks/useDebounce';
-import { useSearchHistory } from '../shared/hooks/useSearchHistory';
-import { logger } from '../shared/lib/logger';
-import { ROUTES } from '../shared/routes';
-import IconButton from '../shared/ui/IconButton';
-import { useToast } from '../shared/ui/Toast';
-import { toggleMenu } from '../utils/appSlice';
-import { login, logout } from '../utils/authSlice';
-import { RootState } from '../utils/store';
+import { toggleMenu } from '@/app/slices/appSlice';
+import { logout } from '@/app/slices/authSlice';
+import { RootState } from '@/app/store';
+import { SignInButton } from '@/features/auth/SignInButton';
+import { useSearchSuggestions } from '@/shared/hooks/queries';
+import { useClickOutside } from '@/shared/hooks/useClickOutside';
+import { useDebounce } from '@/shared/hooks/useDebounce';
+import { useSearchHistory } from '@/shared/hooks/useSearchHistory';
+import { logger } from '@/shared/lib/logger';
+import { ROUTES } from '@/shared/routes';
+import IconButton from '@/shared/ui/IconButton';
+import { useToast } from '@/shared/ui/Toast';
 
 const Head = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -29,50 +22,29 @@ const Head = () => {
   const [isListening, setIsListening] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
 
+  // Detect Web Speech support once so the mic can render a disabled affordance
+  // instead of surprising the user with an error toast after they click it.
+  const [voiceSupported] = useState(
+    () =>
+      typeof window !== 'undefined' &&
+      !!('SpeechRecognition' in window || 'webkitSpeechRecognition' in window)
+  );
+
+  const searchRef = useRef<HTMLDivElement>(null);
+  const profileRef = useRef<HTMLDivElement>(null);
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const toast = useToast();
 
+  const closeSuggestions = useCallback(() => setShowSuggestions(false), []);
+  const closeProfileMenu = useCallback(() => setShowProfileMenu(false), []);
+  useClickOutside(searchRef, closeSuggestions, showSuggestions);
+  useClickOutside(profileRef, closeProfileMenu, showProfileMenu);
+
   const { user, isAuthenticated } = useSelector(
     (state: RootState) => state.auth
   );
-
-  const handleGoogleLogin = useGoogleLogin({
-    onSuccess: (tokenResponse) => {
-      void (async () => {
-        try {
-          const res = await fetch(
-            'https://www.googleapis.com/oauth2/v3/userinfo',
-            {
-              headers: {
-                Authorization: `Bearer ${tokenResponse.access_token}`,
-              },
-            }
-          );
-          const userInfo = (await res.json()) as {
-            name?: string;
-            email?: string;
-            picture?: string;
-          };
-          if (userInfo.name && userInfo.email && userInfo.picture) {
-            dispatch(
-              login({
-                name: userInfo.name,
-                email: userInfo.email,
-                picture: userInfo.picture,
-              })
-            );
-          } else {
-            toast.error('Login failed. Please try again.');
-          }
-        } catch (error) {
-          logger.error('Failed to fetch user info', { error });
-          toast.error('Login failed. Please try again.');
-        }
-      })();
-    },
-    onError: (error) => logger.error('Login failed', { error }),
-  });
 
   const debouncedSearchQuery = useDebounce(searchQuery, 300);
   const { data: suggestions = [] } = useSearchSuggestions(debouncedSearchQuery);
@@ -111,12 +83,8 @@ const Head = () => {
     };
     const SpeechRecognition = w.SpeechRecognition || w.webkitSpeechRecognition;
 
-    if (!SpeechRecognition) {
-      toast.error(
-        'Your browser does not support voice search. Try Chrome or Safari.'
-      );
-      return;
-    }
+    // The mic button is disabled when unsupported, so this is just a guard.
+    if (!SpeechRecognition) return;
 
     const recognition = new SpeechRecognition();
     recognition.lang = 'en-US';
@@ -204,7 +172,10 @@ const Head = () => {
         </div>
 
         {/* Center section: Search Bar */}
-        <div className="flex-1 max-w-2xl px-4 lg:px-12 ml-4 sm:ml-0 flex justify-end sm:justify-center relative">
+        <div
+          ref={searchRef}
+          className="flex-1 max-w-2xl px-4 lg:px-12 ml-4 sm:ml-0 flex justify-end sm:justify-center relative"
+        >
           <form
             className="flex w-full relative group transition-all duration-300 shadow-sm hover:shadow-md focus-within:shadow-md rounded-full bg-slate-100/50 border border-slate-200/80 focus-within:border-blue-500/50 focus-within:bg-white"
             onSubmit={onSubmit}
@@ -222,7 +193,6 @@ const Head = () => {
                 setSelectedIndex(-1);
               }}
               onFocus={() => setShowSuggestions(true)}
-              onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
               onKeyDown={onKeyDown}
               aria-label="Search queries"
               role="combobox"
@@ -289,6 +259,14 @@ const Head = () => {
           {/* Voice Search Button */}
           <IconButton
             onClick={startVoiceSearch}
+            disabled={!voiceSupported}
+            title={
+              voiceSupported
+                ? isListening
+                  ? 'Listening…'
+                  : 'Search with your voice'
+                : 'Voice search is not supported in this browser (try Chrome or Safari).'
+            }
             className={`ml-3 hidden sm:inline-flex flex-shrink-0 transition-all ${isListening ? 'bg-red-100 text-red-600 animate-pulse scale-105' : 'bg-slate-100 hover:bg-slate-200 text-slate-700'}`}
             aria-label="Search with your voice"
           >
@@ -311,10 +289,11 @@ const Head = () => {
           )}
 
           {isAuthenticated && user ? (
-            <div className="relative">
+            <div className="relative" ref={profileRef}>
               <button
                 onClick={() => setShowProfileMenu(!showProfileMenu)}
-                onBlur={() => setTimeout(() => setShowProfileMenu(false), 200)}
+                aria-haspopup="menu"
+                aria-expanded={showProfileMenu}
                 className="flex items-center gap-2 p-1 pl-2 pr-3 bg-slate-100 hover:bg-slate-200 rounded-full transition-colors group border border-slate-200/50"
               >
                 <img
@@ -348,7 +327,10 @@ const Head = () => {
                   <ul className="py-2">
                     <li>
                       <button
-                        onMouseDown={() => dispatch(logout())}
+                        onClick={() => {
+                          dispatch(logout());
+                          setShowProfileMenu(false);
+                        }}
                         className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors text-left"
                       >
                         <LogOut size={18} className="text-slate-400" />
@@ -360,13 +342,7 @@ const Head = () => {
               )}
             </div>
           ) : (
-            <button
-              onClick={() => handleGoogleLogin()}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-full transition-colors font-medium shadow-sm shadow-blue-600/20"
-            >
-              <CircleUser size={18} />
-              <span className="text-sm hidden sm:block">Sign in</span>
-            </button>
+            <SignInButton />
           )}
         </div>
       </header>

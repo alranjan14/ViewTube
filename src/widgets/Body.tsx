@@ -1,10 +1,10 @@
 import { QueryErrorResetBoundary } from '@tanstack/react-query';
 import React from 'react';
 import { Outlet } from 'react-router-dom';
-import { config } from '../shared/config/env';
-import { ErrorBoundary } from '../shared/ui/ErrorBoundary';
-import Head from './Head';
-import Sidebar from './Sidebar';
+import { config } from '@/shared/config/env';
+import { ErrorBoundary } from '@/shared/ui/ErrorBoundary';
+import Head from '@/widgets/Head';
+import Sidebar from '@/widgets/Sidebar';
 
 const PageLoader = () => (
   <div className="flex items-center justify-center w-full h-[50vh]">

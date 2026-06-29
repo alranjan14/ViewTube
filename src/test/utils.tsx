@@ -6,9 +6,9 @@ import React, { ReactElement } from 'react';
 import { Provider } from 'react-redux';
 import { BrowserRouter } from 'react-router-dom';
 import { ToastProvider } from '../shared/ui/Toast';
-import appReducer from '../utils/appSlice';
-import authReducer from '../utils/authSlice';
-import chatReducer from '../utils/chatSlice';
+import appReducer from '@/app/slices/appSlice';
+import authReducer from '@/app/slices/authSlice';
+import chatReducer from '@/app/slices/chatSlice';
 
 const createTestQueryClient = () =>
   new QueryClient({

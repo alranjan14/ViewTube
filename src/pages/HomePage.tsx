@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import ButtonList from '../components/ButtonList';
-import VideoContainer from '../components/VideoContainer';
+import VideoContainer from '@/entities/video/VideoContainer';
+import ButtonList from '@/widgets/ButtonList';
 
 const HomePage = () => {
   const [activeCategory, setActiveCategory] = useState<string | undefined>(

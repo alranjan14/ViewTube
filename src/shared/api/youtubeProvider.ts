@@ -1,4 +1,5 @@
 import { config } from '../config/env';
+import { logger } from '../lib/logger';
 import {
   ChannelDetails,
   CommentData,
@@ -28,12 +29,13 @@ import {
   ChannelListResponseSchema,
   CommentThreadListResponseSchema,
   SearchListResponseSchema,
+  SuggestResponseSchema,
   VideoListResponseSchema,
 } from './youtube.schemas';
 
-const YOUTUBE_API_BASE_URL = 'https://youtube.googleapis.com/youtube/v3';
-const YOUTUBE_SUGGESTIONS_API_URL =
-  'https://suggestqueries.google.com/complete/search';
+// All requests go through the same-origin BFF proxy, which injects the API key
+// server-side. No API key is ever present in the browser.
+const API_BASE_URL = config.youtube.apiBaseUrl;
 
 export const youtubeProvider: IVideoProvider = {
   async getTrendingVideos({
@@ -48,13 +50,12 @@ export const youtubeProvider: IVideoProvider = {
       chart: 'mostPopular',
       maxResults: String(maxResults),
       regionCode,
-      key: config.youtube.apiKey,
     });
     if (pageToken) params.append('pageToken', pageToken);
     if (videoCategoryId) params.append('videoCategoryId', videoCategoryId);
 
     const raw = await httpClient<unknown>(
-      `${YOUTUBE_API_BASE_URL}/videos?${params.toString()}`,
+      `${API_BASE_URL}/videos?${params.toString()}`,
       { signal }
     );
     const data = VideoListResponseSchema.parse(raw);
@@ -71,58 +72,20 @@ export const youtubeProvider: IVideoProvider = {
     const trimmed = query.trim();
     if (!trimmed) return [];
 
-    const params = new URLSearchParams({
-      client: 'youtube',
-      ds: 'yt',
-      q: trimmed,
-    });
-
-    return new Promise<string[]>((resolve, reject) => {
-      const callbackName = `jsonp_callback_${Math.round(100000 * Math.random())}`;
-      params.append('jsonp', callbackName);
-
-      const script = document.createElement('script');
-      script.src = `${YOUTUBE_SUGGESTIONS_API_URL}?${params.toString()}`;
-
-      // The JSONP global is keyed by a random callback name; type it without `any`.
-      const w = window as unknown as Record<
-        string,
-        ((data: unknown) => void) | undefined
-      >;
-
-      const cleanup = () => {
-        delete w[callbackName];
-        if (script.parentNode) script.parentNode.removeChild(script);
-      };
-
-      if (signal) {
-        signal.addEventListener('abort', () => {
-          cleanup();
-          reject(new Error('Aborted'));
-        });
-      }
-
-      w[callbackName] = (data: unknown) => {
-        cleanup();
-        // Response shape: [query, [[suggestion, ...meta], ...], ...]
-        const entries =
-          Array.isArray(data) && Array.isArray(data[1])
-            ? (data[1] as unknown[])
-            : [];
-        resolve(
-          entries
-            .map((entry) => (Array.isArray(entry) ? String(entry[0]) : ''))
-            .filter(Boolean)
-        );
-      };
-
-      script.onerror = () => {
-        cleanup();
-        resolve([]); // Fail gracefully to avoid crashing suggestions
-      };
-
-      document.body.appendChild(script);
-    });
+    // Route through the proxy and parse JSON — no <script> injection / JSONP.
+    // Suggestions are best-effort: a failure should never break the search box.
+    try {
+      const raw = await httpClient<unknown>(
+        `${config.youtube.suggestUrl}?q=${encodeURIComponent(trimmed)}`,
+        { signal }
+      );
+      const [, suggestions] = SuggestResponseSchema.parse(raw);
+      return suggestions;
+    } catch (error) {
+      if (error instanceof Error && error.name === 'AbortError') throw error;
+      logger.warn('Failed to fetch search suggestions', { error });
+      return [];
+    }
   },
 
   async getSearchVideos({
@@ -137,7 +100,6 @@ export const youtubeProvider: IVideoProvider = {
       q: query,
       maxResults: String(maxResults),
       type: 'video',
-      key: config.youtube.apiKey,
     });
     if (pageToken) params.append('pageToken', pageToken);
     if (filters?.order) params.append('order', filters.order);
@@ -145,7 +107,7 @@ export const youtubeProvider: IVideoProvider = {
       params.append('publishedAfter', filters.publishedAfter);
 
     const raw = await httpClient<unknown>(
-      `${YOUTUBE_API_BASE_URL}/search?${params.toString()}`,
+      `${API_BASE_URL}/search?${params.toString()}`,
       { signal }
     );
     const data = SearchListResponseSchema.parse(raw);
@@ -167,12 +129,11 @@ export const youtubeProvider: IVideoProvider = {
       maxResults: String(maxResults),
       order: 'date',
       type: 'video',
-      key: config.youtube.apiKey,
     });
     if (pageToken) params.append('pageToken', pageToken);
 
     const raw = await httpClient<unknown>(
-      `${YOUTUBE_API_BASE_URL}/search?${params.toString()}`,
+      `${API_BASE_URL}/search?${params.toString()}`,
       { signal }
     );
     const data = SearchListResponseSchema.parse(raw);
@@ -189,11 +150,10 @@ export const youtubeProvider: IVideoProvider = {
     const params = new URLSearchParams({
       part: 'snippet,contentDetails,statistics,liveStreamingDetails',
       id: videoId,
-      key: config.youtube.apiKey,
     });
 
     const raw = await httpClient<unknown>(
-      `${YOUTUBE_API_BASE_URL}/videos?${params.toString()}`,
+      `${API_BASE_URL}/videos?${params.toString()}`,
       { signal }
     );
     const data = VideoListResponseSchema.parse(raw);
@@ -209,11 +169,10 @@ export const youtubeProvider: IVideoProvider = {
     const params = new URLSearchParams({
       part: 'snippet,statistics,brandingSettings',
       id: channelId,
-      key: config.youtube.apiKey,
     });
 
     const raw = await httpClient<unknown>(
-      `${YOUTUBE_API_BASE_URL}/channels?${params.toString()}`,
+      `${API_BASE_URL}/channels?${params.toString()}`,
       { signal }
     );
     const data = ChannelListResponseSchema.parse(raw);
@@ -232,12 +191,11 @@ export const youtubeProvider: IVideoProvider = {
       part: 'snippet,replies',
       videoId,
       maxResults: String(maxResults),
-      key: config.youtube.apiKey,
     });
     if (pageToken) params.append('pageToken', pageToken);
 
     const raw = await httpClient<unknown>(
-      `${YOUTUBE_API_BASE_URL}/commentThreads?${params.toString()}`,
+      `${API_BASE_URL}/commentThreads?${params.toString()}`,
       { signal }
     );
     const data = CommentThreadListResponseSchema.parse(raw);

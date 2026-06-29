@@ -1,10 +1,10 @@
 import { History, Clock, ListVideo, Trash2, UserCircle } from 'lucide-react';
 import { useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import VideoCard from '../components/VideoCard';
 import { useLibrary } from '../shared/hooks/useLibrary';
 import { usePlaylists } from '../shared/hooks/usePlaylists';
 import { useWatchLater } from '../shared/hooks/useWatchLater';
+import VideoCard from '@/entities/video/VideoCard';
 
 const LibraryPage = () => {
   const { history, clearHistory } = useLibrary();

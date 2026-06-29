@@ -1,11 +1,11 @@
 import { AlertCircle } from 'lucide-react';
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { useTrendingVideos } from '../shared/hooks/queries';
-import { useIntersectionObserver } from '../shared/hooks/useIntersectionObserver';
-import { QueryError } from '../shared/ui/QueryError';
-import Skeleton from '../shared/ui/Skeleton';
-import VideoCard, { AdVideoCard } from './VideoCard';
+import VideoCard, { AdVideoCard } from '@/entities/video/VideoCard';
+import { useTrendingVideos } from '@/shared/hooks/queries';
+import { useIntersectionObserver } from '@/shared/hooks/useIntersectionObserver';
+import { QueryError } from '@/shared/ui/QueryError';
+import Skeleton from '@/shared/ui/Skeleton';
 
 const VideoContainer = ({ activeCategory }: { activeCategory?: string }) => {
   const {

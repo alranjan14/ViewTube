@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { STORAGE_KEYS } from '../shared/config/storage';
-import authReducer, { login, logout } from './authSlice';
+import authReducer, { login, logout } from '@/app/slices/authSlice';
+import { STORAGE_KEYS } from '@/shared/config/storage';
 
 const user = {
   name: 'Ada',
@@ -35,7 +35,7 @@ describe('authSlice hydration (Zod-validated)', () => {
 
   it('hydrates a valid persisted user on load', async () => {
     localStorage.setItem(STORAGE_KEYS.user, JSON.stringify(user));
-    const fresh = await import('./authSlice');
+    const fresh = await import('@/app/slices/authSlice');
     const state = fresh.default(undefined, { type: '@@INIT' });
     expect(state.user).toEqual(user);
     expect(state.isAuthenticated).toBe(true);
@@ -46,7 +46,7 @@ describe('authSlice hydration (Zod-validated)', () => {
       STORAGE_KEYS.user,
       JSON.stringify({ name: 'missing email + picture' })
     );
-    const fresh = await import('./authSlice');
+    const fresh = await import('@/app/slices/authSlice');
     const state = fresh.default(undefined, { type: '@@INIT' });
     expect(state.user).toBeNull();
     expect(state.isAuthenticated).toBe(false);
@@ -54,7 +54,7 @@ describe('authSlice hydration (Zod-validated)', () => {
 
   it('ignores non-JSON garbage in storage', async () => {
     localStorage.setItem(STORAGE_KEYS.user, 'not-json{');
-    const fresh = await import('./authSlice');
+    const fresh = await import('@/app/slices/authSlice');
     const state = fresh.default(undefined, { type: '@@INIT' });
     expect(state.user).toBeNull();
   });

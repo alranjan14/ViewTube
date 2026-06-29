@@ -1,7 +1,7 @@
 import { screen } from '@testing-library/react';
-import { VideoSummary } from '../shared/types/api';
-import { renderWithProviders } from '../test/utils';
-import VideoCard from './VideoCard';
+import VideoCard from '@/entities/video/VideoCard';
+import { VideoSummary } from '@/shared/types/api';
+import { renderWithProviders } from '@/test/utils';
 
 const mockVideo: VideoSummary = {
   id: 'test-video-1',
@@ -14,7 +14,8 @@ const mockVideo: VideoSummary = {
   duration: 'PT10M15S',
 };
 
-const renderVideoCard = () => renderWithProviders(<VideoCard info={mockVideo} />);
+const renderVideoCard = () =>
+  renderWithProviders(<VideoCard info={mockVideo} />);
 
 describe('VideoCard Component', () => {
   it('renders video details correctly', () => {

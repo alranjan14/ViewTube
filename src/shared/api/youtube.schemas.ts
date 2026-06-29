@@ -123,3 +123,12 @@ export const CommentThreadListResponseSchema = z.object({
   items: z.array(RawCommentThreadSchema).default([]),
   nextPageToken: z.string().optional(),
 });
+
+/**
+ * Search-suggestion payload from the proxy (`/api/suggest`). The upstream
+ * Google "firefox" client returns `[query, [suggestion, ...]]` with optional
+ * trailing metadata, so we accept extra tuple elements.
+ */
+export const SuggestResponseSchema = z
+  .tuple([z.string(), z.array(z.string())])
+  .rest(z.unknown());

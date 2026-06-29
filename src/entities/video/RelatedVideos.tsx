@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
-import { useSearchVideos } from '../shared/hooks/queries';
-import Skeleton from '../shared/ui/Skeleton';
+import { useSearchVideos } from '@/shared/hooks/queries';
+import Skeleton from '@/shared/ui/Skeleton';
 
 const RelatedVideos = ({ title }: { title?: string }) => {
   // We use search based on video title as the best alternative to the deprecated relatedToVideoId

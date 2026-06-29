@@ -1,8 +1,14 @@
+import path from 'path';
 import react from '@vitejs/plugin-react';
 import { coverageConfigDefaults, defineConfig } from 'vitest/config';
 
 export default defineConfig({
   plugins: [react()],
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src'),
+    },
+  },
   test: {
     environment: 'jsdom',
     globals: true,
@@ -20,10 +26,10 @@ export default defineConfig({
       ],
       // Floor set just below current coverage to catch regressions; ratchet up over time.
       thresholds: {
-        statements: 52,
+        statements: 59,
         branches: 43,
-        functions: 38,
-        lines: 56,
+        functions: 50,
+        lines: 63,
       },
     },
   },

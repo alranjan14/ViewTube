@@ -1,9 +1,9 @@
 import { MoreVertical } from 'lucide-react';
 import { memo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useChannelDetails } from '../shared/hooks/queries';
-import { VideoSummary } from '../shared/types/api';
-import IconButton from '../shared/ui/IconButton';
+import { useChannelDetails } from '@/shared/hooks/queries';
+import { VideoSummary } from '@/shared/types/api';
+import IconButton from '@/shared/ui/IconButton';
 
 const SearchVideoCard = ({ info }: { info: VideoSummary }) => {
   const navigate = useNavigate();

@@ -17,3 +17,13 @@ export const STORAGE_KEYS = {
   theme: 'yt_clone_theme',
   autoplay: 'yt_clone_autoplay',
 } as const;
+
+/**
+ * Caps on list-shaped localStorage entries. Each add re-serializes the whole
+ * array on the main thread, so unbounded growth is both a memory and a
+ * jank risk — bound the lists to a sane recent-window size.
+ */
+export const STORAGE_LIMITS = {
+  history: 50,
+  watchLater: 200,
+} as const;

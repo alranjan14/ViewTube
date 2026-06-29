@@ -10,9 +10,6 @@ import {
 import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { Link, useSearchParams } from 'react-router-dom';
-import CommentsContainer from '../components/CommentsContainer';
-import LiveChat from '../components/LiveChat';
-import RelatedVideos from '../components/RelatedVideos';
 import { useVideoDetails, useChannelDetails } from '../shared/hooks/queries';
 import { useLibrary } from '../shared/hooks/useLibrary';
 import { usePlaylists } from '../shared/hooks/usePlaylists';
@@ -21,7 +18,10 @@ import Button from '../shared/ui/Button';
 import { Modal } from '../shared/ui/Modal';
 import Skeleton from '../shared/ui/Skeleton';
 import { useToast } from '../shared/ui/Toast';
-import { closeMenu } from '../utils/appSlice';
+import { closeMenu } from '@/app/slices/appSlice';
+import RelatedVideos from '@/entities/video/RelatedVideos';
+import CommentsContainer from '@/features/comments/CommentsContainer';
+import LiveChat from '@/features/live-chat/LiveChat';
 
 const YOUTUBE_ID_PATTERN = /^[A-Za-z0-9_-]{11}$/;
 

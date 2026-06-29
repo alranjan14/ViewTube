@@ -1,8 +1,8 @@
 import { ThumbsUp, ThumbsDown, MessageSquare } from 'lucide-react';
 import React from 'react';
-import { useVideoComments } from '../shared/hooks/queries';
-import { CommentData } from '../shared/types/api';
-import Skeleton from '../shared/ui/Skeleton';
+import { useVideoComments } from '@/shared/hooks/queries';
+import { CommentData } from '@/shared/types/api';
+import Skeleton from '@/shared/ui/Skeleton';
 
 const Comment = ({ data }: { data: CommentData }) => {
   const { name, text, authorProfileImageUrl, publishedAt } = data;

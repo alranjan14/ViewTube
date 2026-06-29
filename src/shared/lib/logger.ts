@@ -1,9 +1,11 @@
 /* eslint-disable no-console -- this module is the single sanctioned console boundary */
+import { reportError } from './monitoring';
 
 /**
- * Tiny logging facade. Today it pretty-prints in dev and keeps warn/error in
- * prod; it's the one place to later wire an error-reporting sink (Sentry, etc.)
- * without touching call sites. Use this instead of raw `console.*`.
+ * Tiny logging facade. It pretty-prints in dev, keeps warn/error in prod, and
+ * forwards errors to the monitoring sink (Sentry, when configured) — the one
+ * place to wire reporting without touching call sites. Use this instead of raw
+ * `console.*`.
  */
 type LogLevel = 'debug' | 'info' | 'warn' | 'error';
 
@@ -26,9 +28,11 @@ function emit(level: LogLevel, message: string, context?: LogContext): void {
   }
 
   // Production: keep actionable levels, drop debug/info noise.
-  // TODO: forward to Sentry/Datadog here, e.g. captureException(context?.error ?? message).
   if (level === 'warn') console.warn(message, context);
-  if (level === 'error') console.error(message, context);
+  if (level === 'error') {
+    console.error(message, context);
+    reportError(context?.error ?? message, context);
+  }
 }
 
 export const logger = {

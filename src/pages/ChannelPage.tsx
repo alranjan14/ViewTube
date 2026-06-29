@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
-import VideoCard from '../components/VideoCard';
 import { useChannelDetails, useChannelVideos } from '../shared/hooks/queries';
 import { useIntersectionObserver } from '../shared/hooks/useIntersectionObserver';
 import Button from '../shared/ui/Button';
 import Skeleton from '../shared/ui/Skeleton';
+import VideoCard from '@/entities/video/VideoCard';
 
 const ChannelPage = () => {
   const { channelId } = useParams<{ channelId: string }>();

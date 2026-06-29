@@ -1,10 +1,10 @@
-const getInitials = (name = "User") =>
+const getInitials = (name = 'User') =>
   name
     .trim()
     .split(/\s+/)
     .slice(0, 2)
     .map((part) => part[0])
-    .join("")
+    .join('')
     .toUpperCase();
 
 interface UserAvatarProps {
@@ -12,11 +12,11 @@ interface UserAvatarProps {
   className?: string;
 }
 
-const UserAvatar = ({ name = "User", className = "" }: UserAvatarProps) => {
+const UserAvatar = ({ name = 'User', className = '' }: UserAvatarProps) => {
   return (
     <div
       className={
-        "flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-200 text-xs font-semibold text-slate-700 " +
+        'flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-200 text-xs font-semibold text-slate-700 ' +
         className
       }
       aria-label={`${name} avatar`}

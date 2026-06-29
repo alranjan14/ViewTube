@@ -1,4 +1,4 @@
-import UserAvatar from './UserAvatar';
+import UserAvatar from '@/shared/ui/UserAvatar';
 
 const ChatMessage = ({ name, message }: { name: string; message: string }) => {
   return (

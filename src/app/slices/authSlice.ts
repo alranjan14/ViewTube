@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { z } from 'zod';
-import { STORAGE_KEYS } from '../shared/config/storage';
+import { STORAGE_KEYS } from '@/shared/config/storage';
 
 const UserSchema = z.object({
   name: z.string(),
