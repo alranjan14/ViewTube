@@ -5,6 +5,7 @@
   "type": "module",
   "description": "ViewTube App",
   "author": "Alok Ranjan",
+  "license": "MIT",
   "engines": {
     "node": ">=20.19.0",
     "npm": ">=10"
