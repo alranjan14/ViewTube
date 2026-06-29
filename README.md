@@ -1,8 +1,13 @@
 # ViewTube
 
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-view--tube--chi.vercel.app-brightgreen)](https://view-tube-chi.vercel.app/)
+[![CI](https://github.com/alranjan14/ViewTube/actions/workflows/ci.yml/badge.svg)](https://github.com/alranjan14/ViewTube/actions/workflows/ci.yml)
+
 A premium, React-based video discovery application inspired by YouTube. It features a modern glassmorphism aesthetic, robust testing architecture, real Google authentication, and native voice search capabilities.
 
 ## Demo
+
+**Live app:** [view-tube-chi.vercel.app](https://view-tube-chi.vercel.app/) · **[▶ Full screen recording (MP4)](./public/demo.mp4)**
 
 ![ViewTube Demo](./public/demo.webp)
 
@@ -15,6 +20,8 @@ A premium, React-based video discovery application inspired by YouTube. It featu
 - **Routing:** React Router v6
 - **Testing:** Vitest, Playwright, React Testing Library, Mock Service Worker (MSW)
 - **Validation:** Zod — runtime validation of API responses
+- **Deployment:** Vercel (static SPA + Edge-function BFF proxy)
+- **Monitoring:** Sentry (optional, lazy-loaded behind `VITE_SENTRY_DSN`)
 - **Quality:** ESLint, Prettier, Husky + lint-staged, commitlint, GitHub Actions CI
 
 ## Architecture
@@ -84,6 +91,9 @@ Cross-layer imports use the `@/` path alias (e.g. `@/shared/ui/Button`), so file
 
    # Set to 'true' to use mocked local data and prevent consuming API quota.
    VITE_USE_MOCK_API=false
+
+   # Optional: error reporting. When empty, Sentry is never loaded.
+   VITE_SENTRY_DSN=
    ```
 
 4. Start the development server:
@@ -118,8 +128,12 @@ The app deploys as a static SPA plus a small backend-for-frontend (BFF) proxy:
 To deploy:
 
 1. Import the repo into Vercel.
-2. Set the `YOUTUBE_API_KEY` (server-side) and `VITE_GOOGLE_CLIENT_ID` environment variables in the Vercel dashboard. **Do not** set a `VITE_YOUTUBE_API_KEY` — the key must stay server-side.
-3. Deploy. Locally, `vercel dev` runs the functions alongside the app; plain `npm run dev` uses the equivalent Vite dev proxy.
+2. Set environment variables in the Vercel dashboard:
+   - `YOUTUBE_API_KEY` — **server-side** (read by the Edge functions). **Do not** set `VITE_YOUTUBE_API_KEY`; the key must stay server-side.
+   - `VITE_GOOGLE_CLIENT_ID` — **build-time** (inlined). If added after the first deploy, **redeploy** for it to take effect.
+   - `VITE_SENTRY_DSN` — optional error reporting.
+3. **Authorize the domain for Google login:** in Google Cloud Console → the OAuth 2.0 Client → **Authorized JavaScript origins**, add your deployed origin (e.g. `https://your-app.vercel.app`). Without this, sign-in fails with `Error 400: origin_mismatch`. Note: Google doesn't allow wildcard origins, so per-deploy Vercel **preview URLs won't have working login** — only the stable production domain (and any origins you add explicitly).
+4. Deploy. Locally, `vercel dev` runs the functions alongside the app; plain `npm run dev` uses the equivalent Vite dev proxy.
 
 ## Security
 

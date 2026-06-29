@@ -56,7 +56,26 @@ const GoogleSignInButton = () => {
         }
       })();
     },
-    onError: (error) => logger.error('Login failed', { error }),
+    // OAuth-level failures (denied consent, invalid client, etc.).
+    onError: (error) => {
+      logger.error('Google login failed', { error });
+      toast.error('Google sign-in failed. Please try again.');
+    },
+    // Non-OAuth failures — most commonly the popup being blocked by the
+    // browser / an extension / third-party-cookie settings. Surface an
+    // actionable message instead of a silent console log.
+    onNonOAuthError: (error) => {
+      logger.warn('Google sign-in could not start', { type: error.type });
+      if (error.type === 'popup_failed_to_open') {
+        toast.error(
+          'Sign-in pop-up was blocked. Allow pop-ups and third-party cookies for this site, then try again.'
+        );
+      } else if (error.type === 'popup_closed') {
+        toast.info('Sign-in was cancelled.');
+      } else {
+        toast.error('Could not start Google sign-in. Please try again.');
+      }
+    },
   });
 
   return <ButtonShell onClick={() => handleGoogleLogin()} />;
