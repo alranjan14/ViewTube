@@ -5,6 +5,8 @@ interface QueryErrorProps {
   error: Error;
   title?: string;
   onRetry?: () => void;
+  /** Fill the content area (below the header/category bar) instead of a compact card. */
+  fullHeight?: boolean;
 }
 
 /** Shared error state for data lists. Special-cases quota exhaustion with a hint to use mock mode. */
@@ -12,6 +14,7 @@ export function QueryError({
   error,
   title = 'Something went wrong',
   onRetry,
+  fullHeight = false,
 }: QueryErrorProps) {
   const isQuota =
     error instanceof QuotaExceededError || error.name === 'QuotaExceededError';
@@ -22,7 +25,11 @@ export function QueryError({
     : error.message;
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-[300px] px-4 m-4 sm:m-8 bg-slate-50 border border-slate-200 border-dashed rounded-3xl text-center">
+    <div
+      className={`flex flex-col items-center justify-center px-4 m-4 sm:m-8 bg-slate-50 border border-slate-200 border-dashed rounded-3xl text-center ${
+        fullHeight ? 'min-h-[calc(100vh-180px)]' : 'min-h-[300px]'
+      }`}
+    >
       <div
         className={`w-20 h-20 flex items-center justify-center rounded-full mb-6 shadow-sm border ${
           isQuota

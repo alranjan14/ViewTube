@@ -43,6 +43,36 @@ const WatchPage = () => {
   const toast = useToast();
   const [playlistModalOpen, setPlaylistModalOpen] = useState(false);
   const [playlistName, setPlaylistName] = useState('Favorites');
+  // Like/dislike and subscribe have no write-access to YouTube, so they are
+  // client-side affordances only (reset per video), mirroring Watch Later.
+  const [rating, setRating] = useState<'like' | 'dislike' | null>(null);
+  const [subscribed, setSubscribed] = useState(false);
+
+  useEffect(() => {
+    setRating(null);
+    setSubscribed(false);
+  }, [videoId]);
+
+  const handleShare = () => {
+    const url = `${window.location.origin}/watch?v=${videoId ?? ''}`;
+    const copy = () => {
+      if (navigator.clipboard?.writeText) {
+        void navigator.clipboard
+          .writeText(url)
+          .then(() => toast.success('Link copied to clipboard'))
+          .catch(() => toast.error('Could not copy link'));
+      } else {
+        toast.error('Could not copy link');
+      }
+    };
+    if (navigator.share) {
+      void navigator
+        .share({ title: videoDetails?.title, url })
+        .catch(() => copy());
+    } else {
+      copy();
+    }
+  };
 
   const handleConfirmPlaylist = () => {
     const name = playlistName.trim();
@@ -166,26 +196,65 @@ const WatchPage = () => {
                     </span>
                   </div>
                 </Link>
-                <Button variant="primary" className="ml-2">
-                  Subscribe
+                <Button
+                  variant={subscribed ? 'secondary' : 'primary'}
+                  className="ml-2"
+                  onClick={() => {
+                    setSubscribed((prev) => !prev);
+                    toast.success(
+                      subscribed
+                        ? 'Unsubscribed'
+                        : `Subscribed to ${channelDetails?.title || videoDetails.channelTitle}`
+                    );
+                  }}
+                >
+                  {subscribed ? 'Subscribed' : 'Subscribe'}
                 </Button>
               </div>
 
               {/* Actions */}
               <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0 hide-scrollbar">
                 <div className="flex items-center bg-slate-100 rounded-full">
-                  <button className="flex items-center gap-2 px-4 py-2 hover:bg-slate-200 transition-colors rounded-l-full border-r border-slate-300">
-                    <ThumbsUp size={18} />
+                  <button
+                    onClick={() =>
+                      setRating((prev) => (prev === 'like' ? null : 'like'))
+                    }
+                    aria-pressed={rating === 'like'}
+                    className={`flex items-center gap-2 px-4 py-2 hover:bg-slate-200 transition-colors rounded-l-full border-r border-slate-300 ${rating === 'like' ? 'text-blue-600' : ''}`}
+                  >
+                    <ThumbsUp
+                      size={18}
+                      className={rating === 'like' ? 'fill-current' : ''}
+                    />
                     <span className="text-sm font-medium">
-                      {formatCompact(videoDetails.likeCount)}
+                      {formatCompact(
+                        (typeof videoDetails.likeCount === 'string'
+                          ? parseInt(videoDetails.likeCount, 10) || 0
+                          : videoDetails.likeCount || 0) +
+                          (rating === 'like' ? 1 : 0)
+                      )}
                     </span>
                   </button>
-                  <button className="px-4 py-2 hover:bg-slate-200 transition-colors rounded-r-full">
-                    <ThumbsDown size={18} />
+                  <button
+                    onClick={() =>
+                      setRating((prev) =>
+                        prev === 'dislike' ? null : 'dislike'
+                      )
+                    }
+                    aria-pressed={rating === 'dislike'}
+                    className={`px-4 py-2 hover:bg-slate-200 transition-colors rounded-r-full ${rating === 'dislike' ? 'text-blue-600' : ''}`}
+                  >
+                    <ThumbsDown
+                      size={18}
+                      className={rating === 'dislike' ? 'fill-current' : ''}
+                    />
                   </button>
                 </div>
 
-                <button className="flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 transition-colors rounded-full font-medium text-sm">
+                <button
+                  onClick={handleShare}
+                  className="flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 transition-colors rounded-full font-medium text-sm"
+                >
                   <Share2 size={18} />
                   Share
                 </button>

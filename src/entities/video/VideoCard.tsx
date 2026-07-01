@@ -1,6 +1,6 @@
 import { MoreVertical } from 'lucide-react';
 import { memo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useChannelDetails } from '@/shared/hooks/queries';
 import { VideoSummary } from '@/shared/types/api';
 import IconButton from '@/shared/ui/IconButton';
@@ -31,7 +31,10 @@ const VideoCard = ({ info }: { info: VideoSummary }) => {
   };
 
   return (
-    <div className="flex flex-col gap-3 group cursor-pointer w-full">
+    <Link
+      to={'/watch?v=' + info.id}
+      className="flex flex-col gap-3 group cursor-pointer w-full outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-xl"
+    >
       {/* Thumbnail */}
       <div className="relative aspect-video w-full overflow-hidden rounded-xl bg-slate-100">
         <img
@@ -116,12 +119,19 @@ const VideoCard = ({ info }: { info: VideoSummary }) => {
           </div>
         </div>
         <div className="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
-          <IconButton size="sm" aria-label="Video options">
+          <IconButton
+            size="sm"
+            aria-label="Video options"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+            }}
+          >
             <MoreVertical size={20} className="text-slate-900" />
           </IconButton>
         </div>
       </div>
-    </div>
+    </Link>
   );
 };
 

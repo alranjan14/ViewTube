@@ -1,6 +1,5 @@
 import { AlertCircle } from 'lucide-react';
 import React from 'react';
-import { Link } from 'react-router-dom';
 import VideoCard, { AdVideoCard } from '@/entities/video/VideoCard';
 import { useTrendingVideos } from '@/shared/hooks/queries';
 import { useIntersectionObserver } from '@/shared/hooks/useIntersectionObserver';
@@ -69,6 +68,7 @@ const VideoContainer = ({ activeCategory }: { activeCategory?: string }) => {
         error={error}
         title="Couldn't load trending videos"
         onRetry={() => void refetch()}
+        fullHeight
       />
     );
   }
@@ -84,15 +84,7 @@ const VideoContainer = ({ activeCategory }: { activeCategory?: string }) => {
           <React.Fragment key={i}>
             {page.items.map((video, index) => {
               if (i === 0 && index === 0) return null;
-              return (
-                <Link
-                  key={video.id}
-                  to={'/watch?v=' + video.id}
-                  className="outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-xl"
-                >
-                  <VideoCard info={video} />
-                </Link>
-              );
+              return <VideoCard key={video.id} info={video} />;
             })}
           </React.Fragment>
         ))}

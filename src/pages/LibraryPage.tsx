@@ -1,16 +1,22 @@
 import { History, Clock, ListVideo, Trash2, UserCircle } from 'lucide-react';
 import { useEffect } from 'react';
+import { useSelector } from 'react-redux';
 import { Link, useLocation } from 'react-router-dom';
 import { useLibrary } from '../shared/hooks/useLibrary';
 import { usePlaylists } from '../shared/hooks/usePlaylists';
 import { useWatchLater } from '../shared/hooks/useWatchLater';
+import { RootState } from '@/app/store';
 import VideoCard from '@/entities/video/VideoCard';
+import { SignInButton } from '@/features/auth/SignInButton';
 
 const LibraryPage = () => {
   const { history, clearHistory } = useLibrary();
   const { savedVideos } = useWatchLater();
   const { playlists, deletePlaylist } = usePlaylists();
   const location = useLocation();
+  const { user, isAuthenticated } = useSelector(
+    (state: RootState) => state.auth
+  );
 
   useEffect(() => {
     if (location.hash) {
@@ -27,21 +33,44 @@ const LibraryPage = () => {
   return (
     <div className="flex flex-col p-4 sm:p-8 w-full max-w-7xl mx-auto pb-20 gap-12">
       {/* Profile Header (YouTube "You" Page Style) */}
-      <div className="flex items-center gap-6 pb-6">
-        <UserCircle size={80} strokeWidth={1} className="text-slate-400" />
-        <div className="flex flex-col">
-          <h1 className="text-2xl sm:text-3xl font-bold text-slate-900">
-            Alok
-          </h1>
-          <div className="flex items-center gap-2 mt-2 text-sm text-slate-500 font-medium">
-            <span>@AlokRanjan</span>
-            <span>•</span>
-            <span className="hover:text-slate-900 cursor-pointer">
-              View channel
-            </span>
+      {isAuthenticated && user ? (
+        <div className="flex items-center gap-6 pb-6">
+          {user.picture ? (
+            <img
+              src={user.picture}
+              alt={user.name}
+              className="w-20 h-20 rounded-full object-cover shadow-sm"
+            />
+          ) : (
+            <UserCircle size={80} strokeWidth={1} className="text-slate-400" />
+          )}
+          <div className="flex flex-col">
+            <h1 className="text-2xl sm:text-3xl font-bold text-slate-900">
+              {user.name}
+            </h1>
+            <div className="flex items-center gap-2 mt-2 text-sm text-slate-500 font-medium">
+              <span>{user.email}</span>
+            </div>
           </div>
         </div>
-      </div>
+      ) : (
+        <div className="flex flex-col sm:flex-row sm:items-center gap-6 pb-6">
+          <UserCircle size={80} strokeWidth={1} className="text-slate-400" />
+          <div className="flex flex-col gap-3">
+            <div className="flex flex-col">
+              <h1 className="text-2xl sm:text-3xl font-bold text-slate-900">
+                Your library
+              </h1>
+              <p className="mt-1 text-sm text-slate-500">
+                Sign in to see your channel and personalize your activity.
+              </p>
+            </div>
+            <div className="w-fit">
+              <SignInButton />
+            </div>
+          </div>
+        </div>
+      )}
       {/* History Section */}
       <section id="history" className="scroll-mt-24">
         <div className="flex items-center justify-between mb-4">
