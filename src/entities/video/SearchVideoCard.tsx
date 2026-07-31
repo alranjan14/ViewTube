@@ -2,6 +2,7 @@ import { MoreVertical } from 'lucide-react';
 import { memo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useChannelDetails } from '@/shared/hooks/queries';
+import { NO_THUMBNAIL } from '@/shared/lib/constants';
 import { VideoSummary } from '@/shared/types/api';
 import IconButton from '@/shared/ui/IconButton';
 
@@ -41,8 +42,8 @@ const SearchVideoCard = ({ info }: { info: VideoSummary }) => {
           loading="lazy"
           onError={(e) => {
             const target = e.target as HTMLImageElement;
-            target.src =
-              'https://via.placeholder.com/360x202.png?text=No+Thumbnail';
+            target.onerror = null;
+            target.src = NO_THUMBNAIL;
           }}
         />
         {duration && (
