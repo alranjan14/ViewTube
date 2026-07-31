@@ -20,9 +20,8 @@ yarn-error.log*
 .vscode/
 .claude/
 
-# Local planning notes
-Todo.md
-REVIEW.md
+# Local planning notes (analysis, todos, planning — all local-only)
+.plan/
 dist/
 
 playwright-report/
