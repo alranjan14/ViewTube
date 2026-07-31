@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { z } from 'zod';
 import { STORAGE_KEYS } from '@/shared/config/storage';
+import { logger } from '@/shared/lib/logger';
 
 const UserSchema = z.object({
   name: z.string(),
@@ -24,7 +25,7 @@ const loadUserFromStorage = (): User | null => {
     const result = UserSchema.safeParse(JSON.parse(savedUser));
     return result.success ? result.data : null;
   } catch (e) {
-    console.error('Failed to parse user from local storage', e);
+    logger.error('Failed to parse user from local storage', { error: e });
     return null;
   }
 };
