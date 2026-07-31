@@ -12,6 +12,19 @@ export const config = { runtime: 'edge' };
 
 const UPSTREAM = 'https://youtube.googleapis.com/youtube/v3';
 
+// Only these read-only YouTube Data API v3 resources may be proxied, so the
+// function can't be used as an open proxy to arbitrary v3 endpoints on our key.
+// Matches exactly what the client provider requests.
+const ALLOWED_RESOURCES = new Set([
+  'videos',
+  'search',
+  'channels',
+  'commentThreads',
+]);
+
+// Abort the upstream call if YouTube is slow so the edge function can't hang.
+const UPSTREAM_TIMEOUT_MS = 10_000;
+
 export default async function handler(req: Request): Promise<Response> {
   const apiKey = process.env.YOUTUBE_API_KEY;
   if (!apiKey) {
@@ -24,6 +37,13 @@ export default async function handler(req: Request): Promise<Response> {
   const incoming = new URL(req.url);
   const resource = incoming.pathname.replace(/^\/api\/youtube\//, '');
 
+  if (!ALLOWED_RESOURCES.has(resource)) {
+    return Response.json(
+      { error: { message: `Unsupported resource: ${resource}` } },
+      { status: 404 }
+    );
+  }
+
   const target = new URL(`${UPSTREAM}/${resource}`);
   incoming.searchParams.forEach((value, key) => {
     // Never let the client smuggle its own key through.
@@ -31,9 +51,20 @@ export default async function handler(req: Request): Promise<Response> {
   });
   target.searchParams.set('key', apiKey);
 
-  const upstream = await fetch(target.toString(), {
-    headers: { accept: 'application/json' },
-  });
+  let upstream: Response;
+  try {
+    upstream = await fetch(target.toString(), {
+      headers: { accept: 'application/json' },
+      signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS),
+    });
+  } catch {
+    // Network failure or timeout reaching YouTube — return a clean gateway
+    // error instead of letting the function throw an unhandled exception.
+    return Response.json(
+      { error: { message: 'Upstream YouTube API request failed.' } },
+      { status: 502 }
+    );
+  }
 
   // Pass the body and status through verbatim so the client's httpClient can
   // detect quota/error envelopes; cache successful reads at the edge briefly.
