@@ -10,8 +10,10 @@ import {
 import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { Link, useSearchParams } from 'react-router-dom';
+import { STORAGE_KEYS } from '../shared/config/storage';
 import { useVideoDetails, useChannelDetails } from '../shared/hooks/queries';
 import { useLibrary } from '../shared/hooks/useLibrary';
+import { useLocalStorage } from '../shared/hooks/useLocalStorage';
 import { usePlaylists } from '../shared/hooks/usePlaylists';
 import { useWatchLater } from '../shared/hooks/useWatchLater';
 import Button from '../shared/ui/Button';
@@ -41,6 +43,7 @@ const WatchPage = () => {
   const { isSaved, toggleSave } = useWatchLater();
   const { playlists, createPlaylist, addVideoToPlaylist } = usePlaylists();
   const toast = useToast();
+  const [autoplay] = useLocalStorage(STORAGE_KEYS.autoplay, true);
   const [playlistModalOpen, setPlaylistModalOpen] = useState(false);
   const [playlistName, setPlaylistName] = useState('Favorites');
   // Like/dislike and subscribe have no write-access to YouTube, so they are
@@ -140,7 +143,7 @@ const WatchPage = () => {
         <div className="w-full bg-black rounded-xl overflow-hidden shadow-lg aspect-video">
           <iframe
             className="w-full h-full"
-            src={`https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1`}
+            src={`https://www.youtube-nocookie.com/embed/${videoId}?autoplay=${autoplay ? 1 : 0}`}
             title={videoDetails?.title || 'YouTube video player'}
             frameBorder="0"
             referrerPolicy="strict-origin-when-cross-origin"
