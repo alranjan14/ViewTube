@@ -1,7 +1,7 @@
 import { Menu, Search, Mic, Bell, Video, LogOut } from 'lucide-react';
 import React, { useCallback, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router';
 import { toggleMenu } from '@/app/slices/appSlice';
 import { logout } from '@/app/slices/authSlice';
 import { RootState } from '@/app/store';
@@ -59,7 +59,7 @@ const Head = () => {
     addSearch(query);
     setShowSuggestions(false);
     setSelectedIndex(-1);
-    navigate(`${ROUTES.SEARCH}?search_query=${encodeURIComponent(query)}`);
+    void navigate(`${ROUTES.SEARCH}?search_query=${encodeURIComponent(query)}`);
   };
 
   const startVoiceSearch = () => {

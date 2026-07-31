@@ -1,6 +1,6 @@
 import { QueryErrorResetBoundary } from '@tanstack/react-query';
 import React from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet } from 'react-router';
 import { config } from '@/shared/config/env';
 import { ErrorBoundary } from '@/shared/ui/ErrorBoundary';
 import Head from '@/widgets/Head';

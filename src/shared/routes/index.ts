@@ -10,4 +10,4 @@ export const ROUTES = {
 } as const;
 
 // Use react-router's type-safe generatePath instead of a hand-rolled replacer.
-export { generatePath } from 'react-router-dom';
+export { generatePath } from 'react-router';

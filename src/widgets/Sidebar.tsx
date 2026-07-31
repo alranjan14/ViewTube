@@ -12,7 +12,7 @@ import {
 } from 'lucide-react';
 import React from 'react';
 import { useSelector } from 'react-redux';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'react-router';
 import { RootState } from '@/app/store';
 import { ROUTES } from '@/shared/routes';
 

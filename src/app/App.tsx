@@ -1,7 +1,7 @@
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { PlaySquare } from 'lucide-react';
 import { lazy } from 'react';
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { createBrowserRouter, RouterProvider } from 'react-router';
 import { config } from '@/shared/config/env';
 import { ROUTES } from '@/shared/routes';
 import { ToastProvider } from '@/shared/ui/Toast';

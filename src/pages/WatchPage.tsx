@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router';
 import { STORAGE_KEYS } from '../shared/config/storage';
 import { useVideoDetails, useChannelDetails } from '../shared/hooks/queries';
 import { useLibrary } from '../shared/hooks/useLibrary';

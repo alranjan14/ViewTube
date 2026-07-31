@@ -1,7 +1,7 @@
 import { ListFilter } from 'lucide-react';
 import React, { useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import { Link } from 'react-router-dom';
+import { useSearchParams } from 'react-router';
+import { Link } from 'react-router';
 import { useSearchVideos } from '../shared/hooks/queries';
 import { useIntersectionObserver } from '../shared/hooks/useIntersectionObserver';
 import { SearchFilters } from '../shared/types/api';

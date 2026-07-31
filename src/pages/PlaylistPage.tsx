@@ -1,5 +1,5 @@
 import { Trash2, ListVideo } from 'lucide-react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link } from 'react-router';
 import { usePlaylists } from '../shared/hooks/usePlaylists';
 import SearchVideoCard from '@/entities/video/SearchVideoCard';
 

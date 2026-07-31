@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams } from 'react-router';
 import { useChannelDetails, useChannelVideos } from '../shared/hooks/queries';
 import { useIntersectionObserver } from '../shared/hooks/useIntersectionObserver';
 import Button from '../shared/ui/Button';
