@@ -18,6 +18,24 @@ import {
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
+const YT_ID_CHARS =
+  'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
+
+// Produce a YouTube-shaped 11-char id ([A-Za-z0-9_-]) from any seed, so mock
+// videos pass WatchPage's real-id validation instead of being rejected.
+const mockVideoId = (seed: string): string => {
+  let h = 0;
+  for (let i = 0; i < seed.length; i++) {
+    h = (Math.imul(h, 31) + seed.charCodeAt(i)) >>> 0;
+  }
+  let id = '';
+  for (let i = 0; i < 11; i++) {
+    h = (Math.imul(h, 31) + 17) >>> 0;
+    id += YT_ID_CHARS.charAt(h % 64);
+  }
+  return id;
+};
+
 const mockVideoSummary: VideoSummary = {
   id: 'mock-1',
   title: 'Mock Video: Building a ViewTube App with React and Vite',
@@ -38,7 +56,9 @@ export const mockProvider: IVideoProvider = {
     await delay(500);
     const items = Array.from({ length: maxResults }, (_, i) => ({
       ...mockVideoSummary,
-      id: `trending-video-${videoCategoryId || 'all'}-${i}-${Date.now()}`,
+      id: mockVideoId(
+        `trending-video-${videoCategoryId || 'all'}-${i}-${Date.now()}`
+      ),
       title: `Trending Video #${i + 1} ${videoCategoryId ? `(Cat ${videoCategoryId})` : ''}`,
     }));
     return { items, nextPageToken: 'mock-next-page-token' };
@@ -66,7 +86,7 @@ export const mockProvider: IVideoProvider = {
     await delay(500);
     const items = Array.from({ length: maxResults }, (_, i) => ({
       ...mockVideoSummary,
-      id: `search-video-${i}-${Date.now()}`,
+      id: mockVideoId(`search-video-${i}-${Date.now()}`),
       title: `${query} - Result #${i + 1} ${filters?.order ? `(${filters.order})` : ''}`,
     }));
     return { items, nextPageToken: 'mock-search-next-token' };
@@ -79,7 +99,7 @@ export const mockProvider: IVideoProvider = {
     await delay(500);
     const items = Array.from({ length: maxResults }, (_, i) => ({
       ...mockVideoSummary,
-      id: `channel-video-${channelId}-${i}-${Date.now()}`,
+      id: mockVideoId(`channel-video-${channelId}-${i}-${Date.now()}`),
       title: `Upload #${i + 1} from ${channelId}`,
       channelId,
     }));
