@@ -24,9 +24,10 @@ const SettingsPage = () => {
     window.location.reload();
   };
 
-  const [region, setRegion] = useLocalStorage(STORAGE_KEYS.region, 'IN');
-  const [language, setLanguage] = useLocalStorage(STORAGE_KEYS.language, 'en');
-  const [theme, setTheme] = useLocalStorage(STORAGE_KEYS.theme, 'light');
+  const [region, setRegion] = useLocalStorage(
+    STORAGE_KEYS.region,
+    config.youtube.defaultRegion
+  );
   const [autoplay, setAutoplay] = useLocalStorage(STORAGE_KEYS.autoplay, true);
 
   const isMockApi = config.useMockApi;
@@ -115,51 +116,11 @@ const SettingsPage = () => {
               </select>
             </div>
 
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div>
-                <h3 className="font-medium text-slate-900">Language</h3>
-                <p className="text-sm text-slate-500">
-                  Select your preferred application language.
-                </p>
-              </div>
-              <select
-                value={language}
-                onChange={(e) => setLanguage(e.target.value)}
-                className="px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="en">English (US)</option>
-                <option value="hi">Hindi</option>
-                <option value="es">Spanish</option>
-              </select>
-            </div>
-
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div>
-                <h3 className="font-medium text-slate-900">Theme</h3>
-                <p className="text-sm text-slate-500">
-                  Choose your visual aesthetic.
-                </p>
-              </div>
-              <select
-                value={theme}
-                onChange={(e) => setTheme(e.target.value)}
-                className="px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="light">Light Theme</option>
-                <option value="dark" disabled>
-                  Dark Theme (Coming Soon)
-                </option>
-                <option value="system">Device Default</option>
-              </select>
-            </div>
-
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-t border-slate-100 pt-6">
               <div>
-                <h3 className="font-medium text-slate-900">
-                  Autoplay Next Video
-                </h3>
+                <h3 className="font-medium text-slate-900">Autoplay</h3>
                 <p className="text-sm text-slate-500">
-                  Automatically play the next related video.
+                  Automatically start playing a video when you open it.
                 </p>
               </div>
               <button

@@ -13,8 +13,6 @@ export const STORAGE_KEYS = {
   playlists: 'yt_clone_playlists',
   searchHistory: 'yt_clone_search_history',
   region: 'yt_clone_region',
-  language: 'yt_clone_language',
-  theme: 'yt_clone_theme',
   autoplay: 'yt_clone_autoplay',
 } as const;
 
