@@ -1,12 +1,21 @@
 import { AlertCircle } from 'lucide-react';
 import React from 'react';
 import VideoCard, { AdVideoCard } from '@/entities/video/VideoCard';
+import { config } from '@/shared/config/env';
+import { STORAGE_KEYS } from '@/shared/config/storage';
 import { useTrendingVideos } from '@/shared/hooks/queries';
 import { useIntersectionObserver } from '@/shared/hooks/useIntersectionObserver';
+import { useLocalStorage } from '@/shared/hooks/useLocalStorage';
 import { QueryError } from '@/shared/ui/QueryError';
 import Skeleton from '@/shared/ui/Skeleton';
 
 const VideoContainer = ({ activeCategory }: { activeCategory?: string }) => {
+  // Honor the region chosen in Settings (falls back to the configured default).
+  const [region] = useLocalStorage(
+    STORAGE_KEYS.region,
+    config.youtube.defaultRegion
+  );
+
   const {
     data,
     isLoading,
@@ -15,7 +24,7 @@ const VideoContainer = ({ activeCategory }: { activeCategory?: string }) => {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = useTrendingVideos('IN', 50, activeCategory);
+  } = useTrendingVideos(region, 50, activeCategory);
 
   const loadMoreRef = useIntersectionObserver(
     () => {
