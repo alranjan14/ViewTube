@@ -35,10 +35,10 @@ export default defineConfig({
       ],
       // Floor set just below current coverage to catch regressions; ratchet up over time.
       thresholds: {
-        statements: 59,
-        branches: 43,
-        functions: 50,
-        lines: 63,
+        statements: 60,
+        branches: 45,
+        functions: 53,
+        lines: 64,
       },
     },
   },
