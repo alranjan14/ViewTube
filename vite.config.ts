@@ -1,6 +1,11 @@
+import { readFileSync } from 'fs';
 import path from 'path';
 import react from '@vitejs/plugin-react';
 import { defineConfig, loadEnv } from 'vite';
+
+const pkg = JSON.parse(
+  readFileSync(path.resolve(__dirname, 'package.json'), 'utf-8')
+) as { version: string };
 
 export default defineConfig(({ mode }) => {
   // Load *all* env vars (including non-VITE ones) so the dev proxy can read the
@@ -11,6 +16,10 @@ export default defineConfig(({ mode }) => {
 
   return {
     plugins: [react()],
+    // Expose the package.json version to the app as a compile-time constant.
+    define: {
+      __APP_VERSION__: JSON.stringify(pkg.version),
+    },
     resolve: {
       alias: {
         '@': path.resolve(__dirname, './src'),

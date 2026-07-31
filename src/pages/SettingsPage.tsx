@@ -160,7 +160,7 @@ const SettingsPage = () => {
             </div>
             <div className="flex justify-between border-b border-slate-100 pb-2 pt-2">
               <span className="font-medium">Version</span>
-              <span>v1.0.0</span>
+              <span>v{__APP_VERSION__}</span>
             </div>
             <div className="flex justify-between pt-2">
               <span className="font-medium">Environment</span>
